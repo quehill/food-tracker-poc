@@ -327,6 +327,33 @@ select {
   padding: 24px 8px;
 }
 
+.quick-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-title {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: var(--tap);
+  font-size: 0.9rem;
+}
+
+.status-row:empty {
+  display: none;
+}
+
 /* Date switcher */
 .date-switcher {
   display: flex;

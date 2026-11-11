@@ -113,3 +113,22 @@ Running log of choices made while building the POC. Format: decision, reason, al
 ### Meals list sorted alphabetically; meal search and favorites/recents on the Add screen come in Phase 3
 
 ### USDA search inside the meal builder deferred to Phase 4 (with the provider)
+
+## Phase 3
+
+### Add screen sections: Favorites, Recent, then everything else alphabetically
+
+- **Reason:** favorites are one tap ("+1") from the Add screen, so a favorite is two taps from Today (Add, +1). An "All" section keeps everything reachable before there's any history.
+- Favorites sort by use count; Recent = used non-favorites sorted by last used, use count breaks ties, max 10. Favorites are not repeated in Recent.
+
+### Search covers foods and meals together; all query words must match
+
+- **Reason:** "turkey sand" should find the meal. Ranking: name starts with query, then a word starts with it, then other matches (including brand); favorites and recent use break ties. Ranking logic lives in `domain/quickAdd.ts` and is unit tested.
+
+### "+1" shows an Undo, which also restores the item's usage stats
+
+- **Reason:** one-tap logging makes accidental taps likely; undo removes the entry and keeps Recents accurate. Only the last quick log can be undone.
+
+### Meals with deleted ingredients appear but can't be logged
+
+- **Reason:** consistent with Phase 2; the row explains why and the sheet links to the meal editor.

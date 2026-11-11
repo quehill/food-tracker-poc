@@ -132,3 +132,32 @@ Running log of choices made while building the POC. Format: decision, reason, al
 ### Meals with deleted ingredients appear but can't be logged
 
 - **Reason:** consistent with Phase 2; the row explains why and the sheet links to the meal editor.
+
+## Phase 4
+
+### Two USDA requests per search: generic (Foundation, SR Legacy) and Branded, in parallel
+
+- **Reason:** in one combined request, branded items fill the first page (a "turkey breast" search returned only branded hits), so generic results couldn't be ranked first. Cost is 2 requests per (debounced, cached) search, well within 1,000/hour.
+- **Alternatives:** one request sorted by `dataType` (loses relevance order).
+
+### Light re-rank within each group by query-word matches in the name
+
+- **Reason:** USDA relevance alone put "Rolls, dinner, oat bran" first for "rolled oats". Stable sort, so USDA order is kept among equal matches.
+
+### Energy: 1008 (kcal), then 2048/2047 (USDA Atwater energy), then our own Atwater estimate
+
+- **Reason:** many Foundation foods have no 1008 but do have USDA-computed Atwater energy (2047/2048); those are USDA values, so not marked estimated. Only our own 4/4/9 fallback sets `caloriesEstimated`. kJ values are ignored. Negative nutrient values (USDA "by difference" quirk) are clamped to 0.
+
+### Serving conversion
+
+- Search-result nutrients are per 100 g (100 ml for liquids). If the item has `servingSize` in g/ml, macros are scaled to it and the label uses the household text (e.g. "2 oz (57 g)"; USDA's "ONZ" shown as "oz"). Otherwise the serving is 100 g. ml servings don't get a grams value. ALL-CAPS branded names are title-cased.
+
+### Import flow: preview sheet with "Save & edit" or "Save & log"; re-importing the same fdcId reuses the existing food
+
+- **Reason:** explicit save (no accidental imports), explains the per-100 g scaling, and avoids duplicate foods. In the meal builder, tapping a USDA result imports it and adds it as an ingredient.
+
+### Missing key -> provider is `null`, lookup UI explains and links to manual entry; build still succeeds
+
+### Fixtures are trimmed real responses recorded with `DEMO_KEY` (only the fields the mapper reads)
+
+### Provider code (`src/providers/`) may import `domain/` (pure), never the reverse

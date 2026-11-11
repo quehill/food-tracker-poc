@@ -1,0 +1,115 @@
+{
+  "totalHits": 10837,
+  "foods": [
+    {
+      "fdcId": 2440897,
+      "description": "TURKEY BREAST",
+      "dataType": "Branded",
+      "brandOwner": "Diestel Turkey Ranch",
+      "brandName": "DIESTEL",
+      "gtinUpc": "707330377467",
+      "servingSize": 57.0,
+      "servingSizeUnit": "g",
+      "householdServingFullText": "2 ONZ",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "nutrientName": "Protein",
+          "unitName": "G",
+          "value": 28.1
+        },
+        {
+          "nutrientId": 1004,
+          "nutrientName": "Total lipid (fat)",
+          "unitName": "G",
+          "value": 0.88
+        },
+        {
+          "nutrientId": 1005,
+          "nutrientName": "Carbohydrate, by difference",
+          "unitName": "G",
+          "value": 0.0
+        },
+        {
+          "nutrientId": 1008,
+          "nutrientName": "Energy",
+          "unitName": "KCAL",
+          "value": 123
+        }
+      ]
+    },
+    {
+      "fdcId": 555846,
+      "description": "TURKEY BREAST",
+      "dataType": "Branded",
+      "brandOwner": "WEGMANS",
+      "gtinUpc": "039272111152",
+      "servingSize": 56.0,
+      "servingSizeUnit": "g",
+      "householdServingFullText": "2 ONZ",
+      "foodNutrients": [
+        {
+          "nutrientId": 1005,
+          "nutrientName": "Carbohydrate, by difference",
+          "unitName": "G",
+          "value": 0.0
+        },
+        {
+          "nutrientId": 1003,
+          "nutrientName": "Protein",
+          "unitName": "G",
+          "value": 19.6
+        },
+        {
+          "nutrientId": 1004,
+          "nutrientName": "Total lipid (fat)",
+          "unitName": "G",
+          "value": 0.09
+        },
+        {
+          "nutrientId": 1008,
+          "nutrientName": "Energy",
+          "unitName": "KCAL",
+          "value": 89.0
+        }
+      ]
+    },
+    {
+      "fdcId": 1900113,
+      "description": "TURKEY BREAST",
+      "dataType": "Branded",
+      "brandOwner": "Hormel Foods Corporation ",
+      "brandName": "HORMEL",
+      "gtinUpc": "037600198714",
+      "servingSize": 56.0,
+      "servingSizeUnit": "g",
+      "householdServingFullText": "2 ONZ",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "nutrientName": "Protein",
+          "unitName": "G",
+          "value": 21.4
+        },
+        {
+          "nutrientId": 1004,
+          "nutrientName": "Total lipid (fat)",
+          "unitName": "G",
+          "value": 1.79
+        },
+        {
+          "nutrientId": 1005,
+          "nutrientName": "Carbohydrate, by difference",
+          "unitName": "G",
+          "value": 1.79
+        },
+        {
+          "nutrientId": 1008,
+          "nutrientName": "Energy",
+          "unitName": "KCAL",
+          "value": 107
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { logFood, logMeal } from '../../app/actions';
+import { importSearchResult, logFood, logMeal } from '../../app/actions';
 import { repos } from '../../app/repos';
 import { computeMealTotals, MEAL_SERVING_LABEL } from '../../domain/meal';
 import {
@@ -12,8 +12,10 @@ import {
   type QuickItem,
 } from '../../domain/quickAdd';
 import type { Food, LogEntry, Macros } from '../../domain/types';
+import type { FoodSearchResult } from '../../providers/types';
 import { QuantityForm } from '../components/QuantityForm';
 import { Sheet } from '../components/Sheet';
+import { UsdaResults } from '../components/UsdaResults';
 import { fmtDateLabel, macroLine } from '../format';
 import { useRepoQuery } from '../hooks/useRepoQuery';
 import { useSelectedDate } from '../hooks/useSelectedDate';
@@ -93,6 +95,8 @@ export function AddScreen() {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<QuickItem | null>(null);
   const [lastLogged, setLastLogged] = useState<{ entry: LogEntry; before: QuickItem } | null>(null);
+  const [usdaOn, setUsdaOn] = useState(false);
+  const [usdaPick, setUsdaPick] = useState<FoodSearchResult | null>(null);
 
   const foodsById = useMemo(() => new Map((foods ?? []).map((f) => [f.id, f])), [foods]);
   const items = useMemo(() => toQuickItems(foods ?? [], meals ?? []), [foods, meals]);
@@ -146,7 +150,10 @@ export function AddScreen() {
         placeholder="Search foods and meals"
         aria-label="Search foods and meals"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          if (!e.target.value.trim()) setUsdaOn(false);
+        }}
       />
 
       <div className="status-row" role="status" aria-live="polite">
@@ -181,6 +188,13 @@ export function AddScreen() {
             onQuickLog={(q) => void quickLog(q)}
           />
         ))}
+
+      {searching && !usdaOn && (
+        <button type="button" className="button block" onClick={() => setUsdaOn(true)}>
+          Search USDA for &ldquo;{query.trim()}&rdquo;
+        </button>
+      )}
+      {searching && usdaOn && <UsdaResults query={query} onPick={setUsdaPick} />}
 
       <div className="button-row">
         <Link to="/foods/new" className="button">
@@ -219,6 +233,58 @@ export function AddScreen() {
               navigate(date === today ? '/' : `/?date=${date}`);
             }}
           />
+        )}
+      </Sheet>
+
+      <Sheet
+        open={usdaPick !== null}
+        title={usdaPick?.name ?? ''}
+        onClose={() => setUsdaPick(null)}
+      >
+        {usdaPick && (
+          <>
+            <p className="list-item-sub">
+              {usdaPick.brand ?? 'Generic'} · USDA #{usdaPick.sourceId}
+            </p>
+            <div className="card">
+              <div className="metric-name">Per serving: {usdaPick.serving.label}</div>
+              <div className="metric-value">{macroLine(usdaPick.macrosPerServing)}</div>
+            </div>
+            {usdaPick.caloriesEstimated && (
+              <p className="notice">
+                USDA has no calorie value for this item; calories are estimated as 4 × protein + 4 ×
+                carbs + 9 × fat.
+              </p>
+            )}
+            <p className="small muted">
+              USDA lists nutrients per 100 g (or 100 ml); these are scaled to the serving above. You
+              can edit everything after saving.
+            </p>
+            <div className="button-row">
+              <button
+                type="button"
+                className="button"
+                onClick={async () => {
+                  const food = await importSearchResult(usdaPick);
+                  setUsdaPick(null);
+                  navigate(`/foods/${food.id}`);
+                }}
+              >
+                Save &amp; edit
+              </button>
+              <button
+                type="button"
+                className="button primary"
+                onClick={async () => {
+                  const food = await importSearchResult(usdaPick);
+                  setUsdaPick(null);
+                  setSelected({ kind: 'food', item: food });
+                }}
+              >
+                Save &amp; log
+              </button>
+            </div>
+          </>
         )}
       </Sheet>
     </section>

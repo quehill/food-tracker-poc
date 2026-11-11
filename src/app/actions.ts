@@ -3,6 +3,8 @@ import { markFoodUsed } from '../domain/food';
 import { changeEntryServings, createFoodLogEntry } from '../domain/log';
 import { createMealLogEntry, markMealUsed } from '../domain/meal';
 import type { Food, LocalDate, LogEntry, Meal } from '../domain/types';
+import { findImported, foodFromSearchResult } from '../providers/importResult';
+import type { FoodSearchResult } from '../providers/types';
 import { repos } from './repos';
 
 /** UUID v4. Falls back to getRandomValues where randomUUID is unavailable (non-HTTPS LAN dev). */
@@ -35,6 +37,15 @@ export async function setEntryServings(entry: LogEntry, servings: number): Promi
 
 export async function loadFoodsById(): Promise<Map<string, Food>> {
   return new Map((await repos.foods.list()).map((f) => [f.id, f]));
+}
+
+/** Saves a lookup result to My Foods, reusing an earlier import of the same item. */
+export async function importSearchResult(result: FoodSearchResult): Promise<Food> {
+  const existing = findImported(await repos.foods.list(), result);
+  if (existing) return existing;
+  const food = foodFromSearchResult(result, { id: newId(), now: Date.now() });
+  await repos.foods.save(food);
+  return food;
 }
 
 export async function logMeal(meal: Meal, servings: number, date: LocalDate): Promise<LogEntry> {

@@ -60,6 +60,12 @@ export function FoodEditScreen() {
           Cancel
         </button>
       </div>
+      {food?.source === 'usda' && (
+        <p className="small muted">
+          Imported from USDA FoodData Central #{food.sourceId}. Values were scaled from per-100 g to
+          the serving below; edit freely.
+        </p>
+      )}
       <FoodForm
         key={food?.id ?? 'new'}
         initial={food ? draftFromFood(food) : undefined}

@@ -1,0 +1,116 @@
+{
+  "totalHits": 228,
+  "foods": [
+    {
+      "fdcId": 172941,
+      "description": "Turkey breast, sliced, prepackaged",
+      "dataType": "SR Legacy",
+      "foodNutrients": [
+        {
+          "nutrientId": 1004,
+          "nutrientName": "Total lipid (fat)",
+          "unitName": "G",
+          "value": 3.77
+        },
+        {
+          "nutrientId": 1005,
+          "nutrientName": "Carbohydrate, by difference",
+          "unitName": "G",
+          "value": 2.2
+        },
+        {
+          "nutrientId": 1008,
+          "nutrientName": "Energy",
+          "unitName": "KCAL",
+          "value": 106
+        },
+        {
+          "nutrientId": 1062,
+          "nutrientName": "Energy",
+          "unitName": "kJ",
+          "value": 442
+        },
+        {
+          "nutrientId": 1003,
+          "nutrientName": "Protein",
+          "unitName": "G",
+          "value": 14.8
+        }
+      ]
+    },
+    {
+      "fdcId": 171098,
+      "description": "Turkey, whole, breast, meat only, raw",
+      "dataType": "SR Legacy",
+      "foodNutrients": [
+        {
+          "nutrientId": 1008,
+          "nutrientName": "Energy",
+          "unitName": "KCAL",
+          "value": 114
+        },
+        {
+          "nutrientId": 1004,
+          "nutrientName": "Total lipid (fat)",
+          "unitName": "G",
+          "value": 1.48
+        },
+        {
+          "nutrientId": 1003,
+          "nutrientName": "Protein",
+          "unitName": "G",
+          "value": 23.7
+        },
+        {
+          "nutrientId": 1062,
+          "nutrientName": "Energy",
+          "unitName": "kJ",
+          "value": 479
+        },
+        {
+          "nutrientId": 1005,
+          "nutrientName": "Carbohydrate, by difference",
+          "unitName": "G",
+          "value": 0.14
+        }
+      ]
+    },
+    {
+      "fdcId": 171093,
+      "description": "Turkey, all classes, breast, meat and skin, raw",
+      "dataType": "SR Legacy",
+      "foodNutrients": [
+        {
+          "nutrientId": 1062,
+          "nutrientName": "Energy",
+          "unitName": "kJ",
+          "value": 657
+        },
+        {
+          "nutrientId": 1004,
+          "nutrientName": "Total lipid (fat)",
+          "unitName": "G",
+          "value": 7.02
+        },
+        {
+          "nutrientId": 1005,
+          "nutrientName": "Carbohydrate, by difference",
+          "unitName": "G",
+          "value": 0.0
+        },
+        {
+          "nutrientId": 1008,
+          "nutrientName": "Energy",
+          "unitName": "KCAL",
+          "value": 157
+        },
+        {
+          "nutrientId": 1003,
+          "nutrientName": "Protein",
+          "unitName": "G",
+          "value": 21.9
+        }
+      ]
+    }
+  ]
+}

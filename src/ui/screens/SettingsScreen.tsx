@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { repos } from '../../app/repos';
 import { loadSampleData } from '../../data/sampleData';
+import { DataSection } from '../components/DataSection';
 import { parseDecimal } from '../../domain/quantity';
 import { validateTargets } from '../../domain/targets';
 import type { Targets } from '../../domain/types';
@@ -96,16 +97,10 @@ export function SettingsScreen() {
 
       <section className="card">
         <h2>Daily targets</h2>
-        {targets && <TargetsForm initial={targets} />}
+        {targets && <TargetsForm key={JSON.stringify(targets)} initial={targets} />}
       </section>
 
-      <section className="card">
-        <h2>Data</h2>
-        <p className="small muted">
-          Data is stored only on this device. Backup export/import and CSV export are coming in a
-          later phase.
-        </p>
-      </section>
+      <DataSection />
 
       <details className="card">
         <summary>Developer</summary>

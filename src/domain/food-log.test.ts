@@ -45,6 +45,16 @@ describe('food', () => {
     const edited = { ...draft, macros: { ...draft.macros, calories: 95 } };
     expect(updateFood(food, edited, 2).caloriesEstimated).toBeUndefined();
   });
+
+  it('keeps the estimated flag when calories were only rescaled to a new serving weight', () => {
+    const food = { ...createFood(draft, { id: 'f1', now: 1 }), caloriesEstimated: true };
+    const rescaled = {
+      ...draft,
+      servingGrams: 170,
+      macros: { calories: 180, protein: 36, carbs: 4, fat: 2 },
+    };
+    expect(updateFood(food, rescaled, 2).caloriesEstimated).toBe(true);
+  });
 });
 
 describe('log entries', () => {

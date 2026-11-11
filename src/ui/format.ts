@@ -36,6 +36,10 @@ export function fmtTime(timestamp: number): string {
   return new Date(timestamp).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }
 
+export function plural(n: number, singular: string, pluralForm = `${singular}s`): string {
+  return `${n} ${n === 1 ? singular : pluralForm}`;
+}
+
 /** Up to 2 decimals for prefilled numeric inputs. */
 export function toInputValue(value: number | undefined): string {
   if (value === undefined || !Number.isFinite(value)) return '';

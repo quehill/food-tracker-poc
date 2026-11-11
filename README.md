@@ -4,6 +4,21 @@ A minimal, fast, local-only macro tracker. Mobile-first installable PWA; built s
 
 No accounts, no ads, no sync. Data lives in your browser (IndexedDB).
 
+## Features
+
+- **Today:** daily calories/protein (and optional carbs/fat) vs. targets, entries by day, edit servings, delete.
+- **Add:** Favorites, Recent, and search across foods and meals; "+1" logs one serving in one tap (with Undo). A favorite is two taps from Today.
+- **Foods:** custom foods per serving, optional serving grams (enter quantities by grams), calorie sanity warning. Changing serving grams rescales the macros automatically (toggleable).
+- **Meals:** build from foods with live totals; log with a servings multiplier. Log entries snapshot their values, so editing foods/meals never changes history.
+- **USDA lookup:** search FoodData Central (generic results first) and import into My Foods.
+- **Settings:** targets, JSON backup export/import, CSV export of the log, clear data, persistent-storage status, last-backup reminder.
+
+## Data safety
+
+- **Backup:** Settings > Export JSON backup. The file is versioned (`schemaVersion`) and validated on import; importing **replaces** all data on the device after a confirmation. On phones the file is handed to the share sheet (choose "Save to Files").
+- **CSV:** Settings > Export log as CSV (one row per entry; opens in Excel/Numbers/Sheets).
+- **Storage persistence:** the app asks the browser for persistent storage on launch; Settings shows the result. iOS may still clear data for sites that aren't installed, so install the app and export backups regularly (Settings reminds you after 7 days).
+
 ## Setup
 
 Requires Node 22+ (see `.nvmrc`).

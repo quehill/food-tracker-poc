@@ -161,3 +161,41 @@ Running log of choices made while building the POC. Format: decision, reason, al
 ### Fixtures are trimmed real responses recorded with `DEMO_KEY` (only the fields the mapper reads)
 
 ### Provider code (`src/providers/`) may import `domain/` (pure), never the reverse
+
+## Phase 5
+
+### Serving grams changes rescale macros automatically (owner request)
+
+- **How:** the food form keeps a base (macros at a known serving weight, taken from the saved food or the last manual macro edit). Changing serving grams sets macros = base × newGrams / baseGrams, so typing "8" then "85" never drifts. A label like "100 g" is updated to match. A checkbox turns it off (e.g. to correct a mistyped weight without touching macros).
+- Exact (unrounded) values are saved when the field still shows them; the "calories estimated" flag survives a pure rescale.
+- No scaling when the food had no serving grams before (adding a weight just describes the serving).
+
+### Backup format: `{ app, schemaVersion, exportedAt, foods, meals, logEntries, settings }`
+
+- **Reason:** mirrors the stores, simple to diff and restore. Every record is shape-checked on import; errors name the bad record. Newer `schemaVersion` is rejected; older versions go through a migration table (empty at v1).
+- Import **replaces** everything in one IndexedDB transaction (no partial restores). Merge was rejected: ambiguous on id conflicts and rarely what you want when restoring.
+- `lastBackupAt` is device-local: excluded from backups and kept on restore.
+
+### Saving files: share sheet on touch devices, download link elsewhere
+
+- **Reason:** in installed iOS PWAs, blob downloads open a preview that's hard to leave; the share sheet's "Save to Files" is reliable. Desktop uses a normal download.
+
+### CSV: RFC 4180 quoting, UTF-8 BOM, values rounded to 2 decimals, formula-like text prefixed with `'`
+
+- **Reason:** opens cleanly in Excel; prevents spreadsheet formula injection from food names.
+
+### `navigator.storage.persist()` on every launch; status and manual request in Settings
+
+- **Reason:** browsers decide silently (Chrome/Safari) so there's no prompt cost. Backup reminder after 7 days or when data exists but was never backed up.
+
+### "Clear all data" in Settings
+
+- **Reason:** needed for the export, clear, import acceptance check and for moving between the Safari tab and installed app.
+
+### "Units display" setting not added
+
+- **Reason:** the app only tracks kcal and grams (spec), so there's nothing to switch. Revisit if kJ or ounces are wanted.
+
+### Accessibility pass
+
+- Labeled inputs everywhere; field errors linked with `aria-describedby`; required fields marked; status regions use `aria-live`; icon buttons have labels; tab bar uses `aria-current`; sheets are native `<dialog>` (focus trap, Escape); visible focus ring; light/dark via `prefers-color-scheme` with AA contrast.

@@ -53,8 +53,18 @@ export function createFood(
   };
 }
 
+/** True when `calories` is just `food`'s calories rescaled to a new serving weight. */
+function isRescaledCalories(food: Food, calories: number, servingGrams?: number): boolean {
+  const oldGrams = food.serving.grams;
+  if (!oldGrams || !servingGrams) return false;
+  const expected = (food.macrosPerServing.calories * servingGrams) / oldGrams;
+  return Math.abs(calories - expected) < 1e-9 * Math.max(1, expected);
+}
+
 export function updateFood(food: Food, draft: FoodDraft, now: number): Food {
-  const caloriesChanged = draft.macros.calories !== food.macrosPerServing.calories;
+  const caloriesChanged =
+    draft.macros.calories !== food.macrosPerServing.calories &&
+    !isRescaledCalories(food, draft.macros.calories, draft.servingGrams);
   return {
     ...food,
     name: draft.name.trim(),

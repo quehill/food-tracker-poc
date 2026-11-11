@@ -278,6 +278,17 @@ select {
   padding: 14px;
 }
 
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stack > h2,
+.stack > p {
+  margin: 0;
+}
+
 .list {
   list-style: none;
   margin: 0;

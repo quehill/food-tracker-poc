@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { repos } from '../../app/repos';
+import { LibrarySwitch } from '../components/LibrarySwitch';
 import { macroLine } from '../format';
 import { useRepoQuery } from '../hooks/useRepoQuery';
 
@@ -23,6 +24,7 @@ export function FoodsScreen() {
           New food
         </Link>
       </div>
+      <LibrarySwitch current="foods" />
 
       <input
         type="search"

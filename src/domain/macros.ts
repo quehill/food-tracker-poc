@@ -44,6 +44,28 @@ export function atwaterCalories(m: Pick<Macros, 'protein' | 'carbs' | 'fat'>): n
   );
 }
 
+export interface CalorieShares {
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
+/**
+ * Each macro's share of the 4/4/9 energy (fractions summing to 1), or null when there are no
+ * macros. Used to split a calorie total by source.
+ */
+export function macroCalorieShares(
+  m: Pick<Macros, 'protein' | 'carbs' | 'fat'>,
+): CalorieShares | null {
+  const total = atwaterCalories(m);
+  if (!(total > 0)) return null;
+  return {
+    protein: (KCAL_PER_GRAM.protein * m.protein) / total,
+    carbs: (KCAL_PER_GRAM.carbs * m.carbs) / total,
+    fat: (KCAL_PER_GRAM.fat * m.fat) / total,
+  };
+}
+
 export interface CalorieCheck {
   entered: number;
   expected: number;

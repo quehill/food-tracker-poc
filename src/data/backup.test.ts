@@ -44,7 +44,15 @@ async function seed() {
       label: 'lunch, "big"',
     }),
   );
-  await repos.settings.setTargets({ calories: 1900, protein: 160, fat: 70 });
+  await repos.settings.setTargets({ calories: 1900, protein: 160, fat: 70 }, '2026-11-09');
+  await repos.settings.setProfile({
+    sex: 'male',
+    age: 35,
+    heightCm: 180,
+    weightKg: 80,
+    activity: 'moderate',
+    goal: 'maintain',
+  });
   await repos.settings.setLastBackupAt(999);
   return repos;
 }
@@ -72,12 +80,17 @@ describe('JSON backup', () => {
     expect(sortById(after.logEntries)).toEqual(sortById(before.logEntries));
     expect(after.settings).toEqual(before.settings);
     expect(await repos.settings.getTargets()).toEqual({ calories: 1900, protein: 160, fat: 70 });
+    expect((await repos.settings.getTargetHistory()).map((p) => p.effectiveFrom)).toEqual([
+      '0000-01-01',
+      '2026-11-09',
+    ]);
+    expect((await repos.settings.getProfile())?.weightKg).toBe(80);
   });
 
   it('excludes the device-local last-backup time from exports and keeps it on restore', async () => {
     const repos = await seed();
     const data = await repos.backup.exportData();
-    expect(data.settings.map((s) => s.key)).toEqual(['targets']);
+    expect(data.settings.map((s) => s.key)).toEqual(['profile', 'targetHistory', 'targets']);
     await repos.backup.replaceAll({ ...data, foods: [] });
     expect(await repos.settings.getLastBackupAt()).toBe(999);
     expect(await repos.foods.list()).toEqual([]);

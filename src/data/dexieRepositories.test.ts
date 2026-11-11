@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createFood } from '../domain/food';
 import { createFoodLogEntry } from '../domain/log';
 import { computeMealTotals } from '../domain/meal';
-import { DEFAULT_TARGETS } from '../domain/targets';
+import { DEFAULT_TARGETS, EARLIEST_DATE, targetsForDate } from '../domain/targets';
 import { subscribeToChanges } from './changes';
 import { AppDB } from './db';
 import { createDexieRepositories } from './dexieRepositories';
@@ -39,7 +39,7 @@ describe('Dexie repositories', () => {
     await repos.log.save(
       createFoodLogEntry({ id: 'e1', food, servings: 2, date: '2026-11-10', timestamp: 100 }),
     );
-    await repos.settings.setTargets({ calories: 1800, protein: 140 });
+    await repos.settings.setTargets({ calories: 1800, protein: 140 }, '2026-11-10');
     db.close();
 
     db = new AppDB(dbName);
@@ -63,6 +63,57 @@ describe('Dexie repositories', () => {
   it('returns default targets when none are saved', async () => {
     const repos = createDexieRepositories(db);
     expect(await repos.settings.getTargets()).toEqual(DEFAULT_TARGETS);
+    expect(await repos.settings.getTargetHistory()).toEqual([
+      { effectiveFrom: EARLIEST_DATE, targets: DEFAULT_TARGETS },
+    ]);
+  });
+
+  it('lists log entries in an inclusive date range', async () => {
+    const repos = createDexieRepositories(db);
+    const mk = (id: string, date: string, timestamp: number) =>
+      createFoodLogEntry({ id, food, servings: 1, date, timestamp });
+    await repos.log.save(mk('before', '2026-11-03', 1));
+    await repos.log.save(mk('last', '2026-11-10', 4));
+    await repos.log.save(mk('first', '2026-11-04', 2));
+    await repos.log.save(mk('middle', '2026-11-07', 3));
+    await repos.log.save(mk('after', '2026-11-11', 5));
+    const ids = (await repos.log.listByDateRange('2026-11-04', '2026-11-10')).map((e) => e.id);
+    expect(ids).toEqual(['first', 'middle', 'last']);
+  });
+
+  it('keeps past targets when new targets are saved', async () => {
+    const repos = createDexieRepositories(db);
+    const old = { calories: 2000, protein: 150 };
+    const next = { calories: 1800, protein: 160, carbs: 180, fat: 60 };
+    // Simulates data saved before target history existed.
+    await db.settings.put({ key: 'targets', value: old });
+
+    await repos.settings.setTargets(next, '2026-11-10');
+    expect(await repos.settings.getTargets()).toEqual(next);
+    const history = await repos.settings.getTargetHistory();
+    expect(history).toEqual([
+      { effectiveFrom: EARLIEST_DATE, targets: old },
+      { effectiveFrom: '2026-11-10', targets: next },
+    ]);
+    expect(targetsForDate(history, '2026-11-09')).toEqual(old);
+    expect(targetsForDate(history, '2026-11-10')).toEqual(next);
+  });
+
+  it('saves and validates the profile', async () => {
+    const repos = createDexieRepositories(db);
+    expect(await repos.settings.getProfile()).toBeUndefined();
+    const profile = {
+      sex: 'female' as const,
+      age: 30,
+      heightCm: 165,
+      weightKg: 63,
+      activity: 'light' as const,
+      goal: 'maintain' as const,
+    };
+    await repos.settings.setProfile(profile);
+    expect(await repos.settings.getProfile()).toEqual(profile);
+    await db.settings.put({ key: 'profile', value: { sex: 'x' } });
+    expect(await repos.settings.getProfile()).toBeUndefined();
   });
 
   it('notifies listeners on writes', async () => {

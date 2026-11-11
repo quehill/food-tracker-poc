@@ -4,6 +4,7 @@ import { loadFoodsById, logMeal } from '../../app/actions';
 import { repos } from '../../app/repos';
 import { computeMealTotals, MEAL_SERVING_LABEL } from '../../domain/meal';
 import type { Meal } from '../../domain/types';
+import { LibrarySwitch } from '../components/LibrarySwitch';
 import { QuantityForm } from '../components/QuantityForm';
 import { Sheet } from '../components/Sheet';
 import { macroLine } from '../format';
@@ -27,6 +28,7 @@ export function MealsScreen() {
           New meal
         </Link>
       </div>
+      <LibrarySwitch current="meals" />
 
       {meals && meals.length === 0 && (
         <p className="empty">

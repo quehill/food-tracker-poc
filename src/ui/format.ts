@@ -32,6 +32,25 @@ export function fmtDateLabel(date: LocalDate, today: LocalDate): string {
   });
 }
 
+/** "Nov 4" */
+export function fmtShortDate(date: LocalDate): string {
+  return parseLocalDate(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+/** "Tue" */
+export function fmtWeekday(date: LocalDate): string {
+  return parseLocalDate(date).toLocaleDateString(undefined, { weekday: 'short' });
+}
+
+/** "Tue, Nov 4" */
+export function fmtLongDate(date: LocalDate): string {
+  return parseLocalDate(date).toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
 export function fmtTime(timestamp: number): string {
   return new Date(timestamp).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
 }

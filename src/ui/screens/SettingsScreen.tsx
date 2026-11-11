@@ -2,6 +2,10 @@ import { useState, type FormEvent } from 'react';
 import { repos } from '../../app/repos';
 import { loadSampleData } from '../../data/sampleData';
 import { DataSection } from '../components/DataSection';
+import { Sheet } from '../components/Sheet';
+import { TargetEstimator } from '../components/TargetEstimator';
+import { toLocalDate } from '../../domain/dates';
+import type { Profile } from '../../domain/energy';
 import { parseDecimal } from '../../domain/quantity';
 import { validateTargets } from '../../domain/targets';
 import type { Targets } from '../../domain/types';
@@ -10,7 +14,14 @@ import { useRepoQuery } from '../hooks/useRepoQuery';
 
 type TargetKey = keyof Targets;
 
-function TargetsForm({ initial }: { initial: Targets }) {
+interface TargetsFormProps {
+  initial: Targets;
+  /** Lives in the parent so it survives the remount that follows a save. */
+  status: string;
+  setStatus: (s: string) => void;
+}
+
+function TargetsForm({ initial, status, setStatus }: TargetsFormProps) {
   const [text, setText] = useState<Record<TargetKey, string>>({
     calories: toInputValue(initial.calories),
     protein: toInputValue(initial.protein),
@@ -18,7 +29,21 @@ function TargetsForm({ initial }: { initial: Targets }) {
     fat: toInputValue(initial.fat),
   });
   const [errors, setErrors] = useState<Partial<Record<TargetKey, string>>>({});
-  const [status, setStatus] = useState('');
+  const [estimating, setEstimating] = useState(false);
+  const profile = useRepoQuery(() => repos.settings.getProfile(), []);
+
+  const applyEstimate = async (p: Profile, t: Targets) => {
+    await repos.settings.setProfile(p);
+    setText({
+      calories: toInputValue(t.calories),
+      protein: toInputValue(t.protein),
+      carbs: toInputValue(t.carbs),
+      fat: toInputValue(t.fat),
+    });
+    setErrors({});
+    setEstimating(false);
+    setStatus('Filled in from your estimate. Review, then tap Save targets.');
+  };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -36,8 +61,8 @@ function TargetsForm({ initial }: { initial: Targets }) {
       return;
     }
     setErrors({});
-    await repos.settings.setTargets(targets);
-    setStatus('Saved');
+    await repos.settings.setTargets(targets, toLocalDate(new Date()));
+    setStatus('Saved. New targets apply from today; past days keep theirs.');
   };
 
   const field = (key: TargetKey, label: string, required: boolean) => (
@@ -61,26 +86,39 @@ function TargetsForm({ initial }: { initial: Targets }) {
   );
 
   return (
-    <form className="form" onSubmit={(e) => void submit(e)} noValidate>
-      <div className="field-grid">
-        {field('calories', 'Calories (kcal)', true)}
-        {field('protein', 'Protein (g)', true)}
-        {field('carbs', 'Carbs (g)', false)}
-        {field('fat', 'Fat (g)', false)}
-      </div>
-      <button type="submit" className="button primary block">
-        Save targets
-      </button>
-      <p className="small muted" role="status" aria-live="polite">
-        {status}
-      </p>
-    </form>
+    <>
+      <form className="form" onSubmit={(e) => void submit(e)} noValidate>
+        <button type="button" className="button block" onClick={() => setEstimating(true)}>
+          Estimate my targets
+        </button>
+        <div className="field-grid">
+          {field('calories', 'Calories (kcal)', true)}
+          {field('protein', 'Protein (g)', true)}
+          {field('carbs', 'Carbs (g)', false)}
+          {field('fat', 'Fat (g)', false)}
+        </div>
+        <button type="submit" className="button primary block">
+          Save targets
+        </button>
+        <p className="small muted" role="status" aria-live="polite">
+          {status}
+        </p>
+      </form>
+      <Sheet open={estimating} title="Estimate my targets" onClose={() => setEstimating(false)}>
+        <TargetEstimator
+          initial={profile}
+          onCancel={() => setEstimating(false)}
+          onUse={(p, t) => void applyEstimate(p, t)}
+        />
+      </Sheet>
+    </>
   );
 }
 
 export function SettingsScreen() {
   const targets = useRepoQuery(() => repos.settings.getTargets(), []);
   const [sampleStatus, setSampleStatus] = useState('');
+  const [targetsStatus, setTargetsStatus] = useState('');
 
   const loadSamples = async () => {
     const added = await loadSampleData(repos, Date.now());
@@ -97,7 +135,14 @@ export function SettingsScreen() {
 
       <section className="card">
         <h2>Daily targets</h2>
-        {targets && <TargetsForm key={JSON.stringify(targets)} initial={targets} />}
+        {targets && (
+          <TargetsForm
+            key={JSON.stringify(targets)}
+            initial={targets}
+            status={targetsStatus}
+            setStatus={setTargetsStatus}
+          />
+        )}
       </section>
 
       <DataSection />

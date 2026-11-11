@@ -1,65 +1,120 @@
-import type { MacroProgress } from '../../domain/targets';
-import type { MacroKey, Macros, Targets } from '../../domain/types';
-import { computeProgress } from '../../domain/targets';
+import type { CSSProperties } from 'react';
+import { macroCalorieShares, type CalorieShares } from '../../domain/macros';
+import { computeProgress, type MacroProgress } from '../../domain/targets';
+import type { Macros, Targets } from '../../domain/types';
 import { fmtGrams, fmtKcal } from '../format';
+import { fmtPercent, MACRO_META, SPLIT_KEYS } from '../macroMeta';
+import { Ring, type RingSegment } from './Ring';
 
-const NAMES: Record<MacroKey, string> = {
-  calories: 'Calories',
-  protein: 'Protein',
-  carbs: 'Carbs',
-  fat: 'Fat',
-};
+/** Outer track: calories vs target. Inner track: the day's calories split by macro. */
+function CalorieRing({ p, shares }: { p: MacroProgress; shares: CalorieShares | null }) {
+  const fraction = p.fraction ?? 0;
+  const remaining = p.remaining ?? 0;
+  const over = remaining < 0;
+  const calorieSegments: RingSegment[] = [{ value: Math.min(fraction, 1), color: 'var(--accent)' }];
+  // Past 100% the overflow laps the ring again in the warning color.
+  if (fraction > 1)
+    calorieSegments.push({ value: Math.min(fraction - 1, 1), color: 'var(--danger)' });
 
-function Metric({ p }: { p: MacroProgress }) {
-  const fmt = p.key === 'calories' ? fmtKcal : fmtGrams;
-  const unit = p.key === 'calories' ? ' kcal' : ' g';
-  const over = p.remaining !== undefined && p.remaining < 0;
+  const split = shares
+    ? 'Split: ' + SPLIT_KEYS.map((k) => `${MACRO_META[k].name} ${fmtPercent(shares[k])}`).join(', ')
+    : 'Nothing logged';
+  const label =
+    p.target === undefined
+      ? `Calories: ${fmtKcal(p.consumed)} kcal. ${split}.`
+      : `Calories: ${fmtKcal(p.consumed)} of ${fmtKcal(p.target)} kcal, ` +
+        `${over ? `${fmtKcal(-remaining)} over` : `${fmtKcal(remaining)} left`}. ${split}.`;
+
   return (
-    <div>
-      <div className="metric-name">{NAMES[p.key]}</div>
-      <div className="metric-value">
-        {fmt(p.consumed)}
-        {p.target !== undefined && (
+    <Ring
+      size={124}
+      label={label}
+      tracks={[
+        {
+          thickness: 12,
+          segments: p.target === undefined ? [] : calorieSegments,
+          stacked: false,
+          roundCaps: true,
+        },
+        {
+          thickness: 6,
+          gap: 0.015,
+          segments: shares
+            ? SPLIT_KEYS.map((k) => ({ value: shares[k], color: MACRO_META[k].color }))
+            : [],
+        },
+      ]}
+    >
+      <span className={`ring-big${over ? ' over' : ''}`}>
+        {fmtKcal(p.target === undefined ? p.consumed : Math.abs(remaining))}
+      </span>
+      <span className="ring-small">
+        {p.target === undefined ? 'kcal' : over ? 'kcal over' : 'kcal left'}
+      </span>
+    </Ring>
+  );
+}
+
+function MacroRow({ p, share }: { p: MacroProgress; share: number | undefined }) {
+  const { name, color } = MACRO_META[p.key];
+  const over = p.remaining !== undefined && p.remaining < 0;
+  const notes = [
+    p.remaining !== undefined &&
+      (over ? `${fmtGrams(-p.remaining)} g over` : `${fmtGrams(p.remaining)} g left`),
+    share !== undefined && `${fmtPercent(share)} of kcal`,
+  ].filter(Boolean);
+  return (
+    <div className="macro-row">
+      <div className="macro-row-head">
+        <span className="macro-row-name">
+          <span className="dot" style={{ background: color }} />
+          {name}
+        </span>
+        <span className="macro-row-value">
+          {fmtGrams(p.consumed)}
           <span className="muted">
-            {' '}
-            / {fmt(p.target)}
-            {unit}
+            {p.target !== undefined ? ` / ${fmtGrams(p.target)} g` : ' g'}
           </span>
-        )}
-        {p.target === undefined && <span className="muted">{unit}</span>}
+        </span>
       </div>
-      {p.remaining !== undefined && (
-        <div className={`metric-remaining${over ? ' over' : ''}`}>
-          {over ? `${fmt(-p.remaining)} over` : `${fmt(p.remaining)} left`}
-        </div>
-      )}
       {p.fraction !== undefined && (
         <div
           className={`bar${over ? ' over' : ''}`}
           role="progressbar"
-          aria-label={`${NAMES[p.key]} progress`}
+          aria-label={`${name} progress`}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(Math.min(p.fraction, 1) * 100)}
+          style={{ '--bar-color': color } as CSSProperties}
         >
           <span style={{ width: `${Math.min(p.fraction, 1) * 100}%` }} />
         </div>
+      )}
+      {notes.length > 0 && (
+        <div className={`macro-row-note${over ? ' over' : ''}`}>{notes.join(' · ')}</div>
       )}
     </div>
   );
 }
 
+/** Compact daily summary sized to leave most of the screen for the entry list. */
 export function ProgressSummary({ totals, targets }: { totals: Macros; targets: Targets }) {
   const p = computeProgress(totals, targets);
+  const shares = macroCalorieShares(totals);
   return (
-    <section className="card progress" aria-label="Daily totals">
-      <div className="progress-primary">
-        <Metric p={p.calories} />
-        <Metric p={p.protein} />
+    <section className="card today-summary" aria-label="Daily totals">
+      <div className="today-summary-ring">
+        <CalorieRing p={p.calories} shares={shares} />
+        {p.calories.target !== undefined && (
+          <div className="today-summary-kcal">
+            {fmtKcal(p.calories.consumed)} / {fmtKcal(p.calories.target)} kcal
+          </div>
+        )}
       </div>
-      <div className="progress-secondary">
-        <Metric p={p.carbs} />
-        <Metric p={p.fat} />
+      <div className="macro-rows">
+        {SPLIT_KEYS.map((k) => (
+          <MacroRow key={k} p={p[k]} share={shares?.[k]} />
+        ))}
       </div>
     </section>
   );

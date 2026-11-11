@@ -6,6 +6,7 @@ import { MealEditScreen } from '../ui/screens/MealEditScreen';
 import { MealsScreen } from '../ui/screens/MealsScreen';
 import { SettingsScreen } from '../ui/screens/SettingsScreen';
 import { TodayScreen } from '../ui/screens/TodayScreen';
+import { TrendsScreen } from '../ui/screens/TrendsScreen';
 import { AppLayout } from './AppLayout';
 
 // Hash routing: GitHub Pages has no SPA rewrites, so deep links must live after "#".
@@ -23,6 +24,7 @@ export const router = createHashRouter([
       { path: 'meals/new', element: <MealEditScreen /> },
       { path: 'meals/:id', element: <MealEditScreen /> },
       { path: 'settings', element: <SettingsScreen /> },
+      { path: 'trends', element: <TrendsScreen /> },
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },

@@ -213,3 +213,55 @@ Running log of choices made while building the POC. Format: decision, reason, al
 ### Accessibility pass
 
 - Labeled inputs everywhere; field errors linked with `aria-describedby`; required fields marked; status regions use `aria-live`; icon buttons have labels; tab bar uses `aria-current`; sheets are native `<dialog>` (focus trap, Escape); visible focus ring; light/dark via `prefers-color-scheme` with AA contrast.
+
+## Post-POC: target calculator, Today redesign, Trends
+
+### Charts added, though the original spec listed them as out of scope (owner request)
+
+- **How:** hand-drawn SVG rings (`Ring.tsx`) and CSS stacked bars (`TrendChart.tsx`); no chart library.
+- **Reason:** the spec asks for minimal dependencies, and two chart types don't justify one (Recharts/Chart.js add 50–150 KB gzipped). Plain SVG/CSS also maps directly to SwiftUI shapes for the iOS port.
+
+### Target estimate: Mifflin-St Jeor × activity factor, goal offset, protein/fat by body weight, carbs as the remainder
+
+- **BMR:** Mifflin-St Jeor (Mifflin et al., Am J Clin Nutr 1990;51:241). The ADA systematic review (Frankenfield et al., J Am Diet Assoc 2005;105:775) found it the most reliable common equation, usually within 10% of measured RMR. Harris-Benedict overestimates by about 5%; Katch-McArdle needs body-fat %, which most users don't know.
+- **Activity factors:** 1.2 / 1.375 / 1.55 / 1.725 / 1.9 (the standard sedentary to extremely active multipliers).
+- **Goal:** −500 / −250 / 0 / +250 kcal per day (lose 1 lb, lose ½ lb, maintain, gain ½ lb per week, using about 3,500 kcal per lb). Floor of 1,500 kcal (men) / 1,200 kcal (women), with a notice when it applies.
+- **Protein:** 1.6 g/kg; Morton et al. (Br J Sports Med 2018) found no further fat-free-mass gain above ~1.62 g/kg/day. 2.0 g/kg in a deficit to help preserve lean mass. At BMI ≥ 30, the weight at BMI 25 is used, because per-kg rules on total weight overshoot.
+- **Fat:** 30% of calories (IOM acceptable range 20–35%), at least 0.6 g/kg. **Carbs:** remaining calories ÷ 4, using the app's existing 4/4/9 factors.
+- **Rounding:** kcal to the nearest 10, grams to the nearest 5 (the macros' energy stays within about 25 kcal of the target).
+- **Inputs:** sex (male/female; the equation only has those two constants), age (18–100), height in ft/in, weight in lb. Stored in metric in a `profile` setting so the formulas stay unit-free.
+- **Prefill, not auto:** "Use these targets" fills the target fields; the user reviews and saves. Targets stay fully editable, and changing weight later doesn't move them silently.
+
+### Target history: `targetHistory` setting of `{ effectiveFrom, targets }[]`
+
+- **Reason:** Trends compares each day to the target in effect that day, so changing targets doesn't rewrite the past (the same idea as entry snapshots). Saving targets replaces any period starting today or later and keeps earlier ones.
+- **Compatibility:** the `targets` key still holds the latest targets. Without a history (older data or backups), the current targets cover all dates. No Dexie schema bump was needed: settings is key/value, and backups already include every non-local setting.
+- Today also uses the targets for the selected day.
+
+### Trends: last 7 days, ‹ › by week (`#/trends?end=YYYY-MM-DD`)
+
+- Bar height = logged calories. Segments split it by each macro's share of 4/4/9 energy, so label calories (which don't always match 4/4/9) still set the height. A day with calories but no macros shows a neutral bar.
+- The dashed per-day target line steps when the target changed. Today's bar is faded (in progress).
+- Averages leave out today and days with nothing logged, so an unlogged day doesn't count as 0 kcal. A macro's average target is shown only when every counted day had that target; otherwise only the average intake is shown.
+- "On target" = calories within ±10% of that day's target.
+- Each bar is a link to that day with a full text label (date, kcal vs target, P/C/F grams), so screen readers get the data without a separate table.
+- Range query `listByDateRange` uses the existing `date` index.
+
+### Navigation: Today | Add | Foods | Trends | Settings; Meals moved under Foods
+
+- **Reason:** six tabs are cramped at 390 px. Foods and Meals are both library management, so they share a tab with a Foods | Meals switch. `/meals` routes are unchanged and keep the Foods tab highlighted.
+
+### Macro colors
+
+- Protein blue, carbs amber, fat pink, the same on Today and Trends; calories use the accent green and overflow uses the danger red. Light-mode shades are dark enough for ≥3:1 non-text contrast on the card background; dark mode uses lighter tints.
+
+### Today summary compacted to about the top third of the screen (owner request)
+
+- **Replaces** the large calorie ring + separate split donut. Now one 124 px double ring sits beside the macro bars: the outer track is calories vs target (center: kcal left/over), and the inner track is the P/C/F calorie split. Each macro row shows "g left · % of kcal", so the split has a text form too.
+- At 390×844 the card ends about 257 px down (under a third of the screen), leaving the rest for entries.
+
+### iOS status bar: keep `status-bar-style="default"`; add a fixed opaque backdrop at the top
+
+- iOS 27 betas draw a progressive blur over the top edge of installed PWAs that use `black-translucent`, with no CSS or meta opt-out. Reported fix: use `default`, which this app has used since Phase 0. The meta is frozen at install, so changing it needs a re-add to the Home Screen.
+- A real fixed element (`.status-bar-backdrop`, height `max(1px, safe-area-inset-top)`, `background: var(--bg)`) gives iOS a solid color to sample for the status bar, and nothing scrolls under it. Pseudo-elements reportedly aren't sampled.
+- **Known limitation:** in standalone mode `prefers-color-scheme` is reportedly frozen per process, so after switching iOS light/dark the status bar color can be wrong until the app is relaunched.

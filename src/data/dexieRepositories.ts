@@ -1,22 +1,38 @@
-import { DEFAULT_TARGETS } from '../domain/targets';
+import { isProfile, type Profile } from '../domain/energy';
+import {
+  DEFAULT_TARGETS,
+  EARLIEST_DATE,
+  isTargetHistory,
+  isTargets,
+  withTargets,
+  type TargetHistory,
+} from '../domain/targets';
 import type { Food, LocalDate, LogEntry, Meal, Targets } from '../domain/types';
 import { notifyChange } from './changes';
 import type { BackupData } from './backup';
 import type { AppDB } from './db';
 import type { Repositories } from './repositories';
 
+/** Latest targets; kept alongside the history so older app versions and backups still read it. */
 const TARGETS_KEY = 'targets';
+const TARGET_HISTORY_KEY = 'targetHistory';
+const PROFILE_KEY = 'profile';
 /** Device-local: excluded from backups and kept when a backup is restored. */
 const LAST_BACKUP_KEY = 'lastBackupAt';
 const LOCAL_SETTING_KEYS = new Set([LAST_BACKUP_KEY]);
 
-function isTargets(v: unknown): v is Targets {
-  if (typeof v !== 'object' || v === null) return false;
-  const t = v as Record<string, unknown>;
-  return typeof t.calories === 'number' && typeof t.protein === 'number';
-}
-
 export function createDexieRepositories(db: AppDB): Repositories {
+  const getTargets = async (): Promise<Targets> => {
+    const row = await db.settings.get(TARGETS_KEY);
+    return isTargets(row?.value) ? row.value : { ...DEFAULT_TARGETS };
+  };
+
+  const getTargetHistory = async (): Promise<TargetHistory> => {
+    const v = (await db.settings.get(TARGET_HISTORY_KEY))?.value;
+    if (isTargetHistory(v) && v.length > 0) return v;
+    // Data from before target history existed: current targets apply to every day.
+    return [{ effectiveFrom: EARLIEST_DATE, targets: await getTargets() }];
+  };
   return {
     foods: {
       list: () => db.foods.toArray(),
@@ -44,6 +60,8 @@ export function createDexieRepositories(db: AppDB): Repositories {
     },
     log: {
       listByDate: (date: LocalDate) => db.logEntries.where('date').equals(date).sortBy('timestamp'),
+      listByDateRange: (from: LocalDate, to: LocalDate) =>
+        db.logEntries.where('date').between(from, to, true, true).sortBy('timestamp'),
       listAll: () => db.logEntries.orderBy('timestamp').toArray(),
       get: (id) => db.logEntries.get(id),
       async save(entry: LogEntry) {
@@ -56,12 +74,24 @@ export function createDexieRepositories(db: AppDB): Repositories {
       },
     },
     settings: {
-      async getTargets() {
-        const row = await db.settings.get(TARGETS_KEY);
-        return isTargets(row?.value) ? row.value : { ...DEFAULT_TARGETS };
+      getTargets,
+      getTargetHistory,
+      async setTargets(targets: Targets, effectiveFrom: LocalDate) {
+        await db.transaction('rw', db.settings, async () => {
+          const history = withTargets(await getTargetHistory(), targets, effectiveFrom);
+          await db.settings.bulkPut([
+            { key: TARGET_HISTORY_KEY, value: history },
+            { key: TARGETS_KEY, value: targets },
+          ]);
+        });
+        notifyChange();
       },
-      async setTargets(targets: Targets) {
-        await db.settings.put({ key: TARGETS_KEY, value: targets });
+      async getProfile() {
+        const v = (await db.settings.get(PROFILE_KEY))?.value;
+        return isProfile(v) ? v : undefined;
+      },
+      async setProfile(profile: Profile) {
+        await db.settings.put({ key: PROFILE_KEY, value: profile });
         notifyChange();
       },
       async getLastBackupAt() {

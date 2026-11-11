@@ -1,9 +1,72 @@
-import type { MacroKey, Macros, Targets } from './types';
+import type { LocalDate, MacroKey, Macros, Targets } from './types';
 
 export const DEFAULT_TARGETS: Readonly<Targets> = Object.freeze({
   calories: 2000,
   protein: 150,
 });
+
+/** Targets in effect from `effectiveFrom` until the next period starts. */
+export interface TargetPeriod {
+  effectiveFrom: LocalDate;
+  targets: Targets;
+}
+
+/** Sorted by `effectiveFrom`, ascending. */
+export type TargetHistory = TargetPeriod[];
+
+/** Sorts before any real date, so a period starting here covers all past days. */
+export const EARLIEST_DATE: LocalDate = '0000-01-01';
+
+/** Targets in effect on `date`. Days before the first period use the first period's targets. */
+export function targetsForDate(history: readonly TargetPeriod[], date: LocalDate): Targets {
+  if (history.length === 0) return { ...DEFAULT_TARGETS };
+  let current = history[0]!.targets;
+  for (const period of history) {
+    if (period.effectiveFrom <= date) current = period.targets;
+    else break;
+  }
+  return current;
+}
+
+/**
+ * Records `targets` from `effectiveFrom` onward. Earlier periods are kept so past days keep the
+ * targets they had; periods on or after `effectiveFrom` are replaced.
+ */
+export function withTargets(
+  history: readonly TargetPeriod[],
+  targets: Targets,
+  effectiveFrom: LocalDate,
+): TargetHistory {
+  const earlier = history
+    .filter((p) => p.effectiveFrom < effectiveFrom)
+    .sort((a, b) => a.effectiveFrom.localeCompare(b.effectiveFrom));
+  return [...earlier, { effectiveFrom, targets }];
+}
+
+export function isTargets(v: unknown): v is Targets {
+  if (typeof v !== 'object' || v === null) return false;
+  const t = v as Record<string, unknown>;
+  const optionalNumber = (x: unknown) => x === undefined || typeof x === 'number';
+  return (
+    typeof t.calories === 'number' &&
+    typeof t.protein === 'number' &&
+    optionalNumber(t.carbs) &&
+    optionalNumber(t.fat)
+  );
+}
+
+export function isTargetHistory(v: unknown): v is TargetHistory {
+  return (
+    Array.isArray(v) &&
+    v.every(
+      (p) =>
+        typeof p === 'object' &&
+        p !== null &&
+        typeof (p as TargetPeriod).effectiveFrom === 'string' &&
+        isTargets((p as TargetPeriod).targets),
+    )
+  );
+}
 
 export interface MacroProgress {
   key: MacroKey;

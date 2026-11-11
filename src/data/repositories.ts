@@ -1,3 +1,5 @@
+import type { Profile } from '../domain/energy';
+import type { TargetHistory } from '../domain/targets';
 import type { Food, LocalDate, LogEntry, Meal, Targets } from '../domain/types';
 import type { BackupData } from './backup';
 
@@ -17,6 +19,8 @@ export interface MealRepository {
 
 export interface LogRepository {
   listByDate(date: LocalDate): Promise<LogEntry[]>;
+  /** Entries with `from <= date <= to`, in timestamp order. */
+  listByDateRange(from: LocalDate, to: LocalDate): Promise<LogEntry[]>;
   listAll(): Promise<LogEntry[]>;
   get(id: string): Promise<LogEntry | undefined>;
   save(entry: LogEntry): Promise<void>;
@@ -24,8 +28,14 @@ export interface LogRepository {
 }
 
 export interface SettingsRepository {
+  /** The most recently saved targets. */
   getTargets(): Promise<Targets>;
-  setTargets(targets: Targets): Promise<void>;
+  /** Saves targets in effect from `effectiveFrom` onward; earlier days keep their targets. */
+  setTargets(targets: Targets, effectiveFrom: LocalDate): Promise<void>;
+  /** Never empty: without saved history, the current targets cover all dates. */
+  getTargetHistory(): Promise<TargetHistory>;
+  getProfile(): Promise<Profile | undefined>;
+  setProfile(profile: Profile): Promise<void>;
   getLastBackupAt(): Promise<number | undefined>;
   setLastBackupAt(timestamp: number): Promise<void>;
 }

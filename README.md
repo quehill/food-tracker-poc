@@ -6,12 +6,14 @@ No accounts, no ads, no sync. Data lives in your browser (IndexedDB).
 
 ## Features
 
-- **Today:** daily calories/protein (and optional carbs/fat) vs. targets, entries by day, edit servings, delete.
+- **Today:** a compact double ring (outer: calories left/over vs. the day's target; inner: calories split by protein/carbs/fat) beside per-macro progress bars, taking about the top third of the screen; entries by day, edit servings, delete.
 - **Add:** Favorites, Recent, and search across foods and meals; "+1" logs one serving in one tap (with Undo). A favorite is two taps from Today.
-- **Foods:** custom foods per serving, optional serving grams (enter quantities by grams), calorie sanity warning. Changing serving grams rescales the macros automatically (toggleable).
-- **Meals:** build from foods with live totals; log with a servings multiplier. Log entries snapshot their values, so editing foods/meals never changes history.
+- **Foods / Meals** (one tab with a Foods | Meals switch):
+  - Foods: custom foods per serving, optional serving grams (enter quantities by grams), calorie sanity warning. Changing serving grams rescales the macros automatically (toggleable).
+  - Meals: build from foods with live totals; log with a servings multiplier. Log entries snapshot their values, so editing foods/meals never changes history.
+- **Trends:** 7-day stacked bars of calories by macro against each day's calorie target, page back by week, daily averages vs. targets, days on target (±10%). Tap a bar to open that day.
 - **USDA lookup:** search FoodData Central (generic results first) and import into My Foods.
-- **Settings:** targets, JSON backup export/import, CSV export of the log, clear data, persistent-storage status, last-backup reminder.
+- **Settings:** targets (with an "Estimate my targets" calculator from sex, age, height, weight, activity and goal), JSON backup export/import, CSV export of the log, clear data, persistent-storage status, last-backup reminder. Saved targets apply from today; past days keep the targets they had.
 
 ## Data safety
 
@@ -65,9 +67,10 @@ src/
   app/        Routing and wiring.
 ```
 
-- All macro calculations live in `domain/` and are unit tested.
+- All macro calculations live in `domain/` and are unit tested (including the target estimate in `domain/energy.ts` and trend aggregation in `domain/trends.ts`).
 - The UI talks to repositories (`src/app/repos.ts`), never to Dexie directly.
-- Log entries snapshot name and macros at log time; editing a food never rewrites history.
+- Log entries snapshot name and macros at log time; editing a food never rewrites history. Targets are kept as a dated history for the same reason.
+- Charts are plain SVG/CSS (`ui/components/Ring.tsx`, `TrendChart.tsx`); no chart library.
 - Hash routing (`#/foods`) so GitHub Pages never 404s on deep links or refresh.
 
 See `DECISIONS.md` for choices and trade-offs.
@@ -97,3 +100,5 @@ The service worker caches the app shell for offline use. When a new version is d
 3. Launch from the home screen icon and test there.
 
 The Safari tab and the installed app keep **separate storage** on iOS. Export a JSON backup before moving between them. iOS may also evict storage for sites that are not installed and not used for a while, so prefer the installed app and keep backups.
+
+iOS reads the Home Screen meta tags (such as `apple-mobile-web-app-status-bar-style`) only when the app is added. After changing them, delete the icon and add it to the Home Screen again. CSS/JS changes arrive through the normal update prompt.

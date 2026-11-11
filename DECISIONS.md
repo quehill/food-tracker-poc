@@ -90,3 +90,26 @@ Running log of choices made while building the POC. Format: decision, reason, al
 ### Add screen (Phase 1 version) lists all foods by recency with a "+1" one-tap log
 
 - **Reason:** satisfies quick-add now; Favorites/Recents sections and meal search come in Phase 3.
+
+## Phase 2
+
+### Meal ingredient quantity stored as servings; grams input synced when the food has serving grams
+
+- **Reason:** matches `MealItem { foodId, servings }`. "85 g turkey" is entered as grams and converted (servings = grams / serving grams).
+
+### Deleting a food used in meals is allowed, with a warning naming the meals
+
+- **Reason:** blocking would force the user to edit meals first. Meals keep the dangling reference, show "Deleted food", and can't be logged or saved until it's removed, so a meal is never logged with silently missing calories.
+- **Alternatives:** cascade-remove the ingredient from meals (silently changes meals); block deletion.
+
+### A logged meal is one entry (`kind: 'meal'`) with summed macros, serving label "meal"
+
+- **Reason:** keeps Today's list short; servings multiplier rescales the snapshot like food entries. Per-ingredient breakdown isn't stored in the entry.
+
+### "Save & log" on the meal builder logs to today
+
+- **Reason:** the builder has no date context. Logging from the Meals list respects `?date=` like the Add screen.
+
+### Meals list sorted alphabetically; meal search and favorites/recents on the Add screen come in Phase 3
+
+### USDA search inside the meal builder deferred to Phase 4 (with the provider)

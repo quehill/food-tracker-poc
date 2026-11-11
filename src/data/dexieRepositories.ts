@@ -1,5 +1,5 @@
 import { DEFAULT_TARGETS } from '../domain/targets';
-import type { Food, LocalDate, LogEntry, Targets } from '../domain/types';
+import type { Food, LocalDate, LogEntry, Meal, Targets } from '../domain/types';
 import { notifyChange } from './changes';
 import type { AppDB } from './db';
 import type { Repositories } from './repositories';
@@ -23,6 +23,18 @@ export function createDexieRepositories(db: AppDB): Repositories {
       },
       async delete(id) {
         await db.foods.delete(id);
+        notifyChange();
+      },
+    },
+    meals: {
+      list: () => db.meals.toArray(),
+      get: (id) => db.meals.get(id),
+      async save(meal: Meal) {
+        await db.meals.put(meal);
+        notifyChange();
+      },
+      async delete(id) {
+        await db.meals.delete(id);
         notifyChange();
       },
     },

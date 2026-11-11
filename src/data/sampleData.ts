@@ -1,7 +1,6 @@
-import type { FoodDraft } from '../domain/food';
-import { createFood } from '../domain/food';
-import type { Food } from '../domain/types';
-import type { FoodRepository } from './repositories';
+import { createFood, type FoodDraft } from '../domain/food';
+import { createMeal, type MealDraft } from '../domain/meal';
+import type { Repositories } from './repositories';
 
 const SAMPLE_FOODS: Array<{ id: string; draft: FoodDraft }> = [
   {
@@ -65,14 +64,36 @@ const SAMPLE_FOODS: Array<{ id: string; draft: FoodDraft }> = [
   },
 ];
 
-/** Adds the sample foods that aren't already present. Returns how many were added. */
-export async function loadSampleFoods(foods: FoodRepository, now: number): Promise<number> {
-  let added = 0;
+const SAMPLE_MEALS: Array<{ id: string; draft: MealDraft }> = [
+  {
+    id: 'sample-turkey-sandwich',
+    draft: {
+      name: 'Turkey sandwich',
+      items: [
+        { foodId: 'sample-bread', servings: 1 },
+        { foodId: 'sample-turkey', servings: 1 },
+        { foodId: 'sample-cheese', servings: 1 },
+      ],
+      favorite: true,
+    },
+  },
+];
+
+/** Adds sample foods and meals that aren't already present (fixed ids, so idempotent). */
+export async function loadSampleData(
+  repos: Pick<Repositories, 'foods' | 'meals'>,
+  now: number,
+): Promise<{ foods: number; meals: number }> {
+  const added = { foods: 0, meals: 0 };
   for (const { id, draft } of SAMPLE_FOODS) {
-    if (await foods.get(id)) continue;
-    const food: Food = createFood(draft, { id, now });
-    await foods.save(food);
-    added++;
+    if (await repos.foods.get(id)) continue;
+    await repos.foods.save(createFood(draft, { id, now }));
+    added.foods++;
+  }
+  for (const { id, draft } of SAMPLE_MEALS) {
+    if (await repos.meals.get(id)) continue;
+    await repos.meals.save(createMeal(draft, { id, now }));
+    added.meals++;
   }
   return added;
 }

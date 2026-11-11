@@ -1,9 +1,16 @@
-import type { Food, LocalDate, LogEntry, Targets } from '../domain/types';
+import type { Food, LocalDate, LogEntry, Meal, Targets } from '../domain/types';
 
 export interface FoodRepository {
   list(): Promise<Food[]>;
   get(id: string): Promise<Food | undefined>;
   save(food: Food): Promise<void>;
+  delete(id: string): Promise<void>;
+}
+
+export interface MealRepository {
+  list(): Promise<Meal[]>;
+  get(id: string): Promise<Meal | undefined>;
+  save(meal: Meal): Promise<void>;
   delete(id: string): Promise<void>;
 }
 
@@ -21,6 +28,7 @@ export interface SettingsRepository {
 
 export interface Repositories {
   foods: FoodRepository;
+  meals: MealRepository;
   log: LogRepository;
   settings: SettingsRepository;
 }

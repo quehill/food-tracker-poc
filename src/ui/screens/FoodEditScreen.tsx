@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { newId } from '../../app/actions';
 import { repos } from '../../app/repos';
 import { createFood, draftFromFood, updateFood, type FoodDraft } from '../../domain/food';
+import { mealsUsingFood } from '../../domain/meal';
 import { FoodForm } from '../components/FoodForm';
 import { useRepoQuery } from '../hooks/useRepoQuery';
 
@@ -26,7 +27,14 @@ export function FoodEditScreen() {
 
   const remove = async () => {
     if (!food) return;
-    if (!window.confirm(`Delete "${food.name}"? Past log entries keep their saved values.`)) return;
+    const usedIn = mealsUsingFood(await repos.meals.list(), food.id);
+    const mealWarning = usedIn.length
+      ? `\n\nIt is used in ${usedIn.length} meal${usedIn.length === 1 ? '' : 's'} (${usedIn
+          .map((m) => m.name)
+          .join(', ')}). Those meals can't be logged until you remove or replace it.`
+      : '';
+    const message = `Delete "${food.name}"? Past log entries keep their saved values.${mealWarning}`;
+    if (!window.confirm(message)) return;
     await repos.foods.delete(food.id);
     navigate('/foods', { replace: true });
   };

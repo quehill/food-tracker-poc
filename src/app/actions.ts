@@ -1,7 +1,8 @@
 import { timestampForDate } from '../domain/dates';
 import { markFoodUsed } from '../domain/food';
 import { changeEntryServings, createFoodLogEntry } from '../domain/log';
-import type { Food, LocalDate, LogEntry } from '../domain/types';
+import { createMealLogEntry, markMealUsed } from '../domain/meal';
+import type { Food, LocalDate, LogEntry, Meal } from '../domain/types';
 import { repos } from './repos';
 
 /** UUID v4. Falls back to getRandomValues where randomUUID is unavailable (non-HTTPS LAN dev). */
@@ -30,4 +31,23 @@ export async function logFood(food: Food, servings: number, date: LocalDate): Pr
 
 export async function setEntryServings(entry: LogEntry, servings: number): Promise<void> {
   await repos.log.save(changeEntryServings(entry, servings));
+}
+
+export async function loadFoodsById(): Promise<Map<string, Food>> {
+  return new Map((await repos.foods.list()).map((f) => [f.id, f]));
+}
+
+export async function logMeal(meal: Meal, servings: number, date: LocalDate): Promise<LogEntry> {
+  const now = new Date();
+  const entry = createMealLogEntry({
+    id: newId(),
+    meal,
+    foodsById: await loadFoodsById(),
+    servings,
+    date,
+    timestamp: timestampForDate(date, now),
+  });
+  await repos.log.save(entry);
+  await repos.meals.save(markMealUsed(meal, now.getTime()));
+  return entry;
 }

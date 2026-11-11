@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { repos } from '../../app/repos';
-import { loadSampleFoods } from '../../data/sampleData';
+import { loadSampleData } from '../../data/sampleData';
 import { parseDecimal } from '../../domain/quantity';
 import { validateTargets } from '../../domain/targets';
 import type { Targets } from '../../domain/types';
@@ -82,8 +82,12 @@ export function SettingsScreen() {
   const [sampleStatus, setSampleStatus] = useState('');
 
   const loadSamples = async () => {
-    const added = await loadSampleFoods(repos.foods, Date.now());
-    setSampleStatus(added ? `Added ${added} sample foods.` : 'Sample foods are already loaded.');
+    const added = await loadSampleData(repos, Date.now());
+    setSampleStatus(
+      added.foods || added.meals
+        ? `Added ${added.foods} sample foods and ${added.meals} sample meal.`
+        : 'Sample data is already loaded.',
+    );
   };
 
   return (

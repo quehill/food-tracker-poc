@@ -2,11 +2,12 @@ import 'fake-indexeddb/auto';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createFood } from '../domain/food';
 import { createFoodLogEntry } from '../domain/log';
+import { computeMealTotals } from '../domain/meal';
 import { DEFAULT_TARGETS } from '../domain/targets';
 import { subscribeToChanges } from './changes';
 import { AppDB } from './db';
 import { createDexieRepositories } from './dexieRepositories';
-import { loadSampleFoods } from './sampleData';
+import { loadSampleData } from './sampleData';
 
 let dbName: string;
 let db: AppDB;
@@ -75,10 +76,19 @@ describe('Dexie repositories', () => {
     expect(calls).toBe(2);
   });
 
-  it('loads sample foods idempotently', async () => {
+  it('loads sample data idempotently, including a turkey sandwich of ~300 kcal', async () => {
     const repos = createDexieRepositories(db);
-    expect(await loadSampleFoods(repos.foods, 1)).toBe(6);
-    expect(await loadSampleFoods(repos.foods, 2)).toBe(0);
+    expect(await loadSampleData(repos, 1)).toEqual({ foods: 6, meals: 1 });
+    expect(await loadSampleData(repos, 2)).toEqual({ foods: 0, meals: 0 });
     expect(await repos.foods.list()).toHaveLength(6);
+
+    const sandwich = await repos.meals.get('sample-turkey-sandwich');
+    const foods = new Map((await repos.foods.list()).map((f) => [f.id, f]));
+    const { totals, missingFoodIds } = computeMealTotals(sandwich!.items, foods);
+    expect(missingFoodIds).toEqual([]);
+    expect(totals.calories).toBeGreaterThanOrEqual(300);
+    expect(totals.calories).toBeLessThanOrEqual(330);
+    expect(totals.protein).toBeGreaterThanOrEqual(20);
+    expect(totals.protein).toBeLessThan(30);
   });
 });

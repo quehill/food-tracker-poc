@@ -2,6 +2,7 @@ import { createHashRouter, Navigate } from 'react-router-dom';
 import { AddScreen } from '../ui/screens/AddScreen';
 import { FoodEditScreen } from '../ui/screens/FoodEditScreen';
 import { FoodsScreen } from '../ui/screens/FoodsScreen';
+import { MealEditScreen } from '../ui/screens/MealEditScreen';
 import { MealsScreen } from '../ui/screens/MealsScreen';
 import { SettingsScreen } from '../ui/screens/SettingsScreen';
 import { TodayScreen } from '../ui/screens/TodayScreen';
@@ -19,6 +20,8 @@ export const router = createHashRouter([
       { path: 'foods/new', element: <FoodEditScreen /> },
       { path: 'foods/:id', element: <FoodEditScreen /> },
       { path: 'meals', element: <MealsScreen /> },
+      { path: 'meals/new', element: <MealEditScreen /> },
+      { path: 'meals/:id', element: <MealEditScreen /> },
       { path: 'settings', element: <SettingsScreen /> },
       { path: '*', element: <Navigate to="/" replace /> },
     ],

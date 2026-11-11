@@ -15,13 +15,24 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
+interface SentRequest {
+  url: URL;
+  method?: string;
+  body: { query: string; dataType: string[]; pageSize: number; requireAllWords?: boolean };
+}
+
+function sent(call: [string, RequestInit?]): SentRequest {
+  const [input, init] = call;
+  return { url: new URL(input), method: init?.method, body: JSON.parse(String(init?.body)) };
+}
+
 /** Serves recorded fixtures by query, dataType and requireAllWords. */
 function fixtureFetch() {
-  return vi.fn(async (input: string) => {
-    const p = new URL(input).searchParams;
-    const branded = p.get('dataType') === 'Branded';
-    const all = p.get('requireAllWords') === 'true';
-    if (p.get('query')?.startsWith('premier')) {
+  return vi.fn(async (input: string, init?: RequestInit) => {
+    const { body } = sent([input, init]);
+    const branded = body.dataType.join() === 'Branded';
+    const all = body.requireAllWords === true;
+    if (body.query.startsWith('premier')) {
       if (branded) return jsonResponse(all ? premierBrandedAll : premierBrandedAny);
       return jsonResponse(all ? premierGenericAll : premierGenericAny);
     }
@@ -37,20 +48,21 @@ describe('USDA provider', () => {
 
     // Fixtures have < 5 all-word matches per group, so each group makes a second request.
     expect(fetchFn).toHaveBeenCalledTimes(4);
-    const urls = fetchFn.mock.calls.map(([u]) => new URL(u));
-    const calls = urls.map(
-      (u) => `${u.searchParams.get('dataType')}|${u.searchParams.get('requireAllWords')}`,
+    const requests = fetchFn.mock.calls.map(sent);
+    const calls = requests.map(
+      (r) => `${r.body.dataType.join()}|${r.body.requireAllWords ?? null}`,
     );
     expect(calls.sort()).toEqual([
       'Branded|null',
       'Branded|true',
-      'Foundation,SR Legacy|null',
-      'Foundation,SR Legacy|true',
+      'Foundation,SR Legacy,Survey (FNDDS)|null',
+      'Foundation,SR Legacy,Survey (FNDDS)|true',
     ]);
-    for (const u of urls) {
-      expect(u.origin + u.pathname).toBe('https://api.nal.usda.gov/fdc/v1/foods/search');
-      expect(u.searchParams.get('api_key')).toBe('k');
-      expect(u.searchParams.get('query')).toBe('turkey breast');
+    for (const r of requests) {
+      expect(r.method).toBe('POST');
+      expect(r.url.origin + r.url.pathname).toBe('https://api.nal.usda.gov/fdc/v1/foods/search');
+      expect(r.url.searchParams.get('api_key')).toBe('k');
+      expect(r.body.query).toBe('turkey breast');
     }
 
     const genericCount = turkeyGeneric.foods.length;

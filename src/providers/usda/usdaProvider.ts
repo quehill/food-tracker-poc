@@ -22,8 +22,15 @@ export interface UsdaProviderOptions {
 /** Below this many all-words matches, also fetch any-word matches to fill the list. */
 const MIN_ALL_WORDS_RESULTS = 5;
 
+interface UsdaSearchRequest {
+  query: string;
+  dataType: string[];
+  pageSize: number;
+  requireAllWords?: boolean;
+}
+
 /**
- * Searches generic (Foundation, SR Legacy) and Branded data in parallel. Each group first asks
+ * Searches generic (Foundation, SR Legacy, Survey/FNDDS) and Branded data in parallel. Each group first asks
  * USDA for items containing every query word (name or brand), topping up with any-word matches
  * when that's sparse. Results are then ranked by how many query words they match; ties keep
  * generic before branded and USDA's own order. Cached per session by query.
@@ -34,21 +41,25 @@ export function createUsdaProvider(opts: UsdaProviderOptions): FoodProvider {
 
   async function request(
     query: string,
-    dataTypes: string,
+    dataTypes: readonly string[],
     pageSize: number,
     requireAllWords: boolean,
     signal?: AbortSignal,
   ) {
     const url = new URL(USDA_SEARCH_URL);
     url.searchParams.set('api_key', opts.apiKey);
-    url.searchParams.set('query', query);
-    url.searchParams.set('dataType', dataTypes);
-    url.searchParams.set('pageSize', String(pageSize));
-    if (requireAllWords) url.searchParams.set('requireAllWords', 'true');
+    // POST: GET requests with "Survey (FNDDS)" in the query string intermittently get nginx 400s.
+    const body: UsdaSearchRequest = { query, dataType: [...dataTypes], pageSize };
+    if (requireAllWords) body.requireAllWords = true;
 
     let res: Response;
     try {
-      res = await fetchFn(url.toString(), { signal });
+      res = await fetchFn(url.toString(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        signal,
+      });
     } catch (err) {
       if (isAbortError(err)) throw err;
       throw new ProviderError('network', 'Network error');
@@ -65,7 +76,12 @@ export function createUsdaProvider(opts: UsdaProviderOptions): FoodProvider {
     }
   }
 
-  async function searchGroup(q: string, dataTypes: string, pageSize: number, signal?: AbortSignal) {
+  async function searchGroup(
+    q: string,
+    dataTypes: readonly string[],
+    pageSize: number,
+    signal?: AbortSignal,
+  ) {
     const strict = mapUsdaFoods((await request(q, dataTypes, pageSize, true, signal)).foods);
     const singleWord = !q.includes(' ');
     if (singleWord || strict.length >= MIN_ALL_WORDS_RESULTS) return strict;
@@ -83,8 +99,8 @@ export function createUsdaProvider(opts: UsdaProviderOptions): FoodProvider {
       if (cached) return cached;
 
       const [generic, branded] = await Promise.all([
-        searchGroup(q, GENERIC_DATA_TYPES.join(','), opts.genericPageSize ?? 10, signal),
-        searchGroup(q, 'Branded', opts.brandedPageSize ?? 20, signal),
+        searchGroup(q, GENERIC_DATA_TYPES, opts.genericPageSize ?? 10, signal),
+        searchGroup(q, ['Branded'], opts.brandedPageSize ?? 20, signal),
       ]);
       const results = rankByQueryMatch(dedupeResults([...generic, ...branded]), q);
       cache.set(key, results);

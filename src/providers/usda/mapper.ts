@@ -12,13 +12,20 @@ export const USDA_NUTRIENT = {
   energyAtwaterSpecific: 2048,
 } as const;
 
-export const GENERIC_DATA_TYPES = ['Foundation', 'SR Legacy'] as const;
+/** Non-branded data types. FNDDS (survey foods) covers mixed dishes and restaurant items. */
+export const GENERIC_DATA_TYPES = ['Foundation', 'SR Legacy', 'Survey (FNDDS)'] as const;
 
 export interface UsdaFoodNutrient {
   nutrientId?: number;
   nutrientName?: string;
   unitName?: string;
   value?: number;
+}
+
+export interface UsdaFoodMeasure {
+  disseminationText?: string;
+  gramWeight?: number;
+  rank?: number;
 }
 
 export interface UsdaSearchFood {
@@ -31,6 +38,7 @@ export interface UsdaSearchFood {
   servingSize?: number;
   servingSizeUnit?: string;
   householdServingFullText?: string;
+  foodMeasures?: UsdaFoodMeasure[];
   foodNutrients?: UsdaFoodNutrient[];
 }
 
@@ -82,8 +90,31 @@ function normalizeUnit(u: string | undefined): Unit | undefined {
 }
 
 /**
+ * FNDDS portion for the item itself, e.g. "1 double cheeseburger" = 140 g. USDA's rank 1 isn't
+ * always that (Big Mac's rank 1 is "1 McDonald's Mac Jr"), so portions sharing more words with
+ * the description win; rank breaks ties.
+ */
+function surveyPortion(food: UsdaSearchFood): { text: string; grams: number } | undefined {
+  if (food.dataType !== 'Survey (FNDDS)') return undefined;
+  const descWords = new Set(words(food.description));
+  const overlap = (text: string) =>
+    words(text).filter((w) => w.length > 1 && descWords.has(w)).length;
+  const m = (food.foodMeasures ?? [])
+    .filter(
+      (x) =>
+        typeof x.gramWeight === 'number' &&
+        x.gramWeight > 0 &&
+        !!x.disseminationText?.trim() &&
+        !/quantity not specified/i.test(x.disseminationText),
+    )
+    .map((x) => ({ x, overlap: overlap(x.disseminationText!) }))
+    .sort((a, b) => b.overlap - a.overlap || (a.x.rank ?? Infinity) - (b.x.rank ?? Infinity))[0]?.x;
+  return m ? { text: m.disseminationText!.trim(), grams: m.gramWeight! } : undefined;
+}
+
+/**
  * Search-result nutrient values are per 100 g (per 100 ml for liquids). Converts to the
- * item's own serving when one is given in g/ml, otherwise to a 100 g serving.
+ * item's labeled serving (branded) or its main portion (FNDDS), otherwise to 100 g.
  */
 function servingOf(food: UsdaSearchFood): { label: string; grams?: number; per100Factor: number } {
   const unit = normalizeUnit(food.servingSizeUnit);
@@ -93,6 +124,14 @@ function servingOf(food: UsdaSearchFood): { label: string; grams?: number; per10
     const household = food.householdServingFullText?.trim();
     const label = household ? `${tidyHousehold(household)} (${amount})` : amount;
     return { label, grams: unit === 'g' ? size : undefined, per100Factor: size / 100 };
+  }
+  const portion = surveyPortion(food);
+  if (portion) {
+    return {
+      label: `${portion.text} (${fmtAmount(portion.grams)} g)`,
+      grams: portion.grams,
+      per100Factor: portion.grams / 100,
+    };
   }
   return { label: '100 g', grams: 100, per100Factor: 1 };
 }

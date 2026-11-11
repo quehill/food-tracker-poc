@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import chickenFoundation from './fixtures/chicken-breast-foundation.json';
+import mcdouble from './fixtures/mcdouble-fndds.json';
 import premierAny from './fixtures/premier-branded-any-words.json';
 import turkeyBranded from './fixtures/turkey-breast-branded.json';
 import turkeyGeneric from './fixtures/turkey-breast-generic.json';
@@ -103,6 +104,55 @@ describe('mapUsdaFood', () => {
 
   it('drops foods with no usable nutrients', () => {
     expect(mapUsdaFood({ fdcId: 4, description: 'Empty', foodNutrients: [] })).toBeNull();
+  });
+
+  it('uses the main FNDDS portion as the serving (restaurant items)', () => {
+    const r = mapUsdaFood((mcdouble as UsdaSearchResponse).foods![0]!)!;
+    expect(r.name).toBe('McDouble (McDonalds)');
+    expect(r.brand).toBeUndefined();
+    expect(r.serving).toEqual({ label: '1 double cheeseburger (140 g)', grams: 140 });
+    expect(r.macrosPerServing.calories).toBeCloseTo(282 * 1.4, 6);
+    expect(r.macrosPerServing.protein).toBeCloseTo(16.24 * 1.4, 6);
+  });
+
+  it('prefers the FNDDS portion that names the item over USDA rank 1', () => {
+    // Measures as returned live for "Big Mac (McDonalds)" (2026-11-10).
+    const r = mapUsdaFood({
+      fdcId: 6,
+      description: 'Big Mac (McDonalds)',
+      dataType: 'Survey (FNDDS)',
+      foodMeasures: [
+        { disseminationText: 'Quantity not specified', gramWeight: 205, rank: 4 },
+        { disseminationText: "1 McDonald's Big Mac", gramWeight: 205, rank: 2 },
+        { disseminationText: "1 McDonald's Grand Mac", gramWeight: 315, rank: 3 },
+        { disseminationText: "1 MCDonald's Mac Jr", gramWeight: 135, rank: 1 },
+      ],
+      foodNutrients: [{ nutrientId: 1008, unitName: 'KCAL', value: 257 }],
+    })!;
+    expect(r.serving).toEqual({ label: "1 McDonald's Big Mac (205 g)", grams: 205 });
+
+    const nuggets = mapUsdaFood({
+      fdcId: 7,
+      description: 'Chicken nuggets, NFS',
+      dataType: 'Survey (FNDDS)',
+      foodMeasures: [
+        { disseminationText: '1 cup', gramWeight: 140, rank: 2 },
+        { disseminationText: '1 nugget', gramWeight: 16, rank: 1 },
+      ],
+      foodNutrients: [{ nutrientId: 1008, unitName: 'KCAL', value: 300 }],
+    })!;
+    expect(nuggets.serving.label).toBe('1 nugget (16 g)');
+  });
+
+  it('falls back to 100 g when an FNDDS item has only unspecified portions', () => {
+    const r = mapUsdaFood({
+      fdcId: 5,
+      description: 'Survey food',
+      dataType: 'Survey (FNDDS)',
+      foodMeasures: [{ disseminationText: 'Quantity not specified', gramWeight: 200, rank: 1 }],
+      foodNutrients: [{ nutrientId: 1008, unitName: 'KCAL', value: 100 }],
+    })!;
+    expect(r.serving).toEqual({ label: '100 g', grams: 100 });
   });
 });
 

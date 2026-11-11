@@ -1,0 +1,28 @@
+{
+  "totalHits": 1,
+  "foods": [
+    {
+      "fdcId": 2706915,
+      "description": "McDouble (McDonalds)",
+      "dataType": "Survey (FNDDS)",
+      "foodMeasures": [
+        {
+          "disseminationText": "1 double cheeseburger",
+          "gramWeight": 140,
+          "rank": 1
+        },
+        {
+          "disseminationText": "Quantity not specified",
+          "gramWeight": 140,
+          "rank": 2
+        }
+      ],
+      "foodNutrients": [
+        { "nutrientId": 1003, "unitName": "G", "value": 16.24 },
+        { "nutrientId": 1004, "unitName": "G", "value": 16.18 },
+        { "nutrientId": 1005, "unitName": "G", "value": 17.97 },
+        { "nutrientId": 1008, "unitName": "KCAL", "value": 282 }
+      ]
+    }
+  ]
+}

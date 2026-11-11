@@ -152,6 +152,12 @@ Running log of choices made while building the POC. Format: decision, reason, al
 - **Cost:** 2 requests for most searches, up to 4 for sparse multi-word queries; debounced and cached, well within 1,000/hour.
 - **Effect (live):** Premier Protein shakes fill the top 5; "turkey breast", "greek yogurt plain" still lead with generic items; "rolled oats" leads with generic rolled oats followed by branded rolled oats.
 
+### Include Survey (FNDDS) in the generic group; search via POST
+
+- **Reason:** FNDDS covers mixed dishes and restaurant items (e.g. "McDouble (McDonalds)") that aren't in Foundation/SR Legacy or Branded.
+- **Serving:** FNDDS items use a real portion instead of 100 g, e.g. "1 double cheeseburger (140 g)". USDA's rank-1 portion isn't always the item (Big Mac's is "1 McDonald's Mac Jr"), so the portion sharing the most words with the description wins, then rank; "Quantity not specified" is skipped.
+- **POST instead of GET:** GET requests with `dataType=Survey (FNDDS)` in the query string intermittently returned nginx 400s (about half the time in testing); POST with a JSON body was reliable. Only the API key stays in the URL.
+
 ### Energy: 1008 (kcal), then 2048/2047 (USDA Atwater energy), then our own Atwater estimate
 
 - **Reason:** many Foundation foods have no 1008 but do have USDA-computed Atwater energy (2047/2048); those are USDA values, so not marked estimated. Only our own 4/4/9 fallback sets `caloriesEstimated`. kJ values are ignored. Negative nutrient values (USDA "by difference" quirk) are clamped to 0.

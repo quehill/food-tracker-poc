@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import chickenFoundation from './fixtures/chicken-breast-foundation.json';
+import premierAny from './fixtures/premier-branded-any-words.json';
 import turkeyBranded from './fixtures/turkey-breast-branded.json';
 import turkeyGeneric from './fixtures/turkey-breast-generic.json';
 import {
+  dedupeResults,
   mapUsdaFood,
   mapUsdaFoods,
   rankByQueryMatch,
@@ -135,5 +137,22 @@ describe('rankByQueryMatch', () => {
       'Rolls, dinner, oat bran',
       'Cereals, oats, regular, dry',
     ]);
+  });
+
+  it('counts brand words, so the actual product beats partial name matches', () => {
+    // USDA's any-word order: Toll House "Premier White" first, the Premier Protein shake 6th.
+    const ranked = rankByQueryMatch(
+      mapUsdaFoods((premierAny as UsdaSearchResponse).foods),
+      'premier protein shake',
+    );
+    expect(ranked[0]).toMatchObject({ name: 'High Protein Shake', brand: 'Premier Protein' });
+    expect(ranked.slice(-3).every((r) => r.name.startsWith('Premier White'))).toBe(true);
+  });
+});
+
+describe('dedupeResults', () => {
+  it('keeps the first occurrence of each item', () => {
+    const all = mapUsdaFoods(branded.foods);
+    expect(dedupeResults([...all, ...all])).toEqual(all);
   });
 });

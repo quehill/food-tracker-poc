@@ -143,6 +143,14 @@ Running log of choices made while building the POC. Format: decision, reason, al
 ### Light re-rank within each group by query-word matches in the name
 
 - **Reason:** USDA relevance alone put "Rolls, dinner, oat bran" first for "rolled oats". Stable sort, so USDA order is kept among equal matches.
+- **Superseded (post-Phase 5), see below.**
+
+### Search relevance v2: all-words first, brand-aware ranking across groups
+
+- **Problem:** "premier protein shake" returned Toll House "Premier White" morsels and generic shake mixes; the actual Premier Protein shake was 6th in branded and always behind every generic result.
+- **Change:** each group (generic, branded) first requests `requireAllWords=true` (USDA matches words across description and brand). If that yields fewer than 5 items, an any-word request tops it up (skipped for one-word queries). Results are then ranked together by query words matched in name + brand, then words matched in the name; ties keep generic before branded and USDA order. Duplicates are removed.
+- **Cost:** 2 requests for most searches, up to 4 for sparse multi-word queries; debounced and cached, well within 1,000/hour.
+- **Effect (live):** Premier Protein shakes fill the top 5; "turkey breast", "greek yogurt plain" still lead with generic items; "rolled oats" leads with generic rolled oats followed by branded rolled oats.
 
 ### Energy: 1008 (kcal), then 2048/2047 (USDA Atwater energy), then our own Atwater estimate
 

@@ -142,17 +142,29 @@ function words(s: string): string[] {
 }
 
 /**
- * Stable re-rank: results whose names contain more of the query words come first.
- * USDA relevance alone can rank e.g. "Rolls, dinner, oat bran" above oats for "rolled oats".
+ * Stable re-rank: results matching more query words (in name or brand) come first; among
+ * those, more matches in the name itself. USDA relevance alone can rank e.g. "Rolls, dinner,
+ * oat bran" above oats for "rolled oats", or Toll House "Premier White" above Premier Protein.
  */
 export function rankByQueryMatch(results: FoodSearchResult[], query: string): FoodSearchResult[] {
   const tokens = words(query);
-  const score = (r: FoodSearchResult) => {
-    const nameWords = words(r.name);
-    return tokens.filter((t) => nameWords.some((w) => w.startsWith(t))).length;
-  };
+  const matches = (ws: string[]) => tokens.filter((t) => ws.some((w) => w.startsWith(t))).length;
   return results
-    .map((r, i) => ({ r, i, s: score(r) }))
-    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .map((r, i) => {
+      const nameWords = words(r.name);
+      return {
+        r,
+        i,
+        all: matches([...nameWords, ...words(r.brand ?? '')]),
+        name: matches(nameWords),
+      };
+    })
+    .sort((a, b) => b.all - a.all || b.name - a.name || a.i - b.i)
     .map((x) => x.r);
+}
+
+/** Keeps the first occurrence of each sourceId. */
+export function dedupeResults(results: FoodSearchResult[]): FoodSearchResult[] {
+  const seen = new Set<string>();
+  return results.filter((r) => !seen.has(r.sourceId) && !!seen.add(r.sourceId));
 }

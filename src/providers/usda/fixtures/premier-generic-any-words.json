@@ -1,0 +1,39 @@
+{
+  "totalHits": 55,
+  "_note": "Descriptions and ids observed from the live API; nutrient values are illustrative (DEMO_KEY was rate-limited while recording).",
+  "foods": [
+    {
+      "fdcId": 174181,
+      "description": "Beverages, nutritional shake mix, high protein, powder",
+      "dataType": "SR Legacy",
+      "foodNutrients": [
+        { "nutrientId": 1003, "unitName": "G", "value": 60 },
+        { "nutrientId": 1004, "unitName": "G", "value": 3 },
+        { "nutrientId": 1005, "unitName": "G", "value": 25 },
+        { "nutrientId": 1008, "unitName": "KCAL", "value": 370 }
+      ]
+    },
+    {
+      "fdcId": 173170,
+      "description": "Beverages, SLIMFAST, Meal replacement,  High Protein Shake, Ready-To-Drink, 3-2-1 plan",
+      "dataType": "SR Legacy",
+      "foodNutrients": [
+        { "nutrientId": 1003, "unitName": "G", "value": 6.5 },
+        { "nutrientId": 1004, "unitName": "G", "value": 2.7 },
+        { "nutrientId": 1005, "unitName": "G", "value": 4.1 },
+        { "nutrientId": 1008, "unitName": "KCAL", "value": 60 }
+      ]
+    },
+    {
+      "fdcId": 170700,
+      "description": "BURGER KING, Vanilla Shake",
+      "dataType": "SR Legacy",
+      "foodNutrients": [
+        { "nutrientId": 1003, "unitName": "G", "value": 3.5 },
+        { "nutrientId": 1004, "unitName": "G", "value": 5.2 },
+        { "nutrientId": 1005, "unitName": "G", "value": 26 },
+        { "nutrientId": 1008, "unitName": "KCAL", "value": 165 }
+      ]
+    }
+  ]
+}

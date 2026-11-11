@@ -1,0 +1,203 @@
+{
+  "totalHits": 12,
+  "foods": [
+    {
+      "fdcId": 2127179,
+      "description": "HIGH PROTEIN SHAKE",
+      "dataType": "Branded",
+      "brandOwner": "Premier Nutrition Corporation",
+      "brandName": "PREMIER PROTEIN",
+      "gtinUpc": "643843715009",
+      "servingSize": 330.0,
+      "servingSizeUnit": "ml",
+      "householdServingFullText": "1 SHAKE",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 9.09
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 0.91
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 1.52
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 48.0
+        }
+      ]
+    },
+    {
+      "fdcId": 2488868,
+      "description": "HIGH PROTEIN SHAKE, CARAMEL",
+      "dataType": "Branded",
+      "brandOwner": "Premier Nutrition Corporation",
+      "brandName": "PREMIER PROTEIN",
+      "gtinUpc": "643843715566",
+      "servingSize": 330.0,
+      "servingSizeUnit": "ml",
+      "householdServingFullText": "1 SHAKE",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 9.09
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 0.91
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 1.52
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 48.0
+        }
+      ]
+    },
+    {
+      "fdcId": 2489244,
+      "description": "HIGH PROTEIN SHAKE, CHOCOLATE",
+      "dataType": "Branded",
+      "brandOwner": "Premier Nutrition Corporation",
+      "brandName": "PREMIER PROTEIN",
+      "gtinUpc": "643843714200",
+      "servingSize": 330.0,
+      "servingSizeUnit": "ml",
+      "householdServingFullText": "1 SHAKE",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 9.09
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 0.91
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 1.52
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 48.0
+        }
+      ]
+    },
+    {
+      "fdcId": 2491052,
+      "description": "HIGH PROTEIN SHAKE, CHOCOLATE",
+      "dataType": "Branded",
+      "brandOwner": "Premier Nutrition Corporation",
+      "brandName": "PREMIER PROTEIN",
+      "gtinUpc": "643843714118",
+      "servingSize": 330.0,
+      "servingSizeUnit": "ml",
+      "householdServingFullText": "1 SHAKE",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 9.09
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 0.91
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 1.52
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 48.0
+        }
+      ]
+    },
+    {
+      "fdcId": 2488869,
+      "description": "CARAMEL HIGH PROTEIN SHAKE, CARAMEL",
+      "dataType": "Branded",
+      "brandOwner": "Premier Nutrition Corporation",
+      "brandName": "PREMIER PROTEIN",
+      "gtinUpc": "643843714996",
+      "servingSize": 330.0,
+      "servingSizeUnit": "ml",
+      "householdServingFullText": "1 SHAKE",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 9.09
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 0.91
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 1.52
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 48.0
+        }
+      ]
+    },
+    {
+      "fdcId": 2471320,
+      "description": "CHOCOLATE HIGH PROTEIN SHAKE, CHOCOLATE",
+      "dataType": "Branded",
+      "brandOwner": "Premier Nutrition Corporation",
+      "brandName": "PREMIER PROTEIN",
+      "gtinUpc": "643843717003",
+      "servingSize": 330.0,
+      "servingSizeUnit": "ml",
+      "householdServingFullText": "1 Shake",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 9.09
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 0.91
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 1.52
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 48.0
+        }
+      ]
+    }
+  ]
+}

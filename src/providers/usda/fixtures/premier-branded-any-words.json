@@ -1,0 +1,267 @@
+{
+  "totalHits": 42585,
+  "foods": [
+    {
+      "fdcId": 2672271,
+      "description": "PREMIER WHITE MORSELS, PREMIER WHITE",
+      "dataType": "Branded",
+      "brandOwner": "Nestle USA Inc.",
+      "brandName": "TOLL HOUSE",
+      "gtinUpc": "028000210106",
+      "servingSize": 14.0,
+      "servingSizeUnit": "GRM",
+      "householdServingFullText": "1 Tbsp",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 7.14
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 28.6
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 64.3
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 571
+        }
+      ]
+    },
+    {
+      "fdcId": 587398,
+      "description": "PROTEIN SHAKE",
+      "dataType": "Branded",
+      "brandOwner": "Ripple Foods",
+      "gtinUpc": "855643006595",
+      "servingSize": 355.0,
+      "servingSizeUnit": "ml",
+      "householdServingFullText": "12 OZA",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 5.63
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 2.25
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 3.1
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 56.0
+        }
+      ]
+    },
+    {
+      "fdcId": 2147495,
+      "description": "PROTEIN SHAKES",
+      "dataType": "Branded",
+      "brandOwner": "The Kellogg Company ",
+      "brandName": "KELLOGG\u0027S",
+      "gtinUpc": "00038000111815",
+      "servingSize": 296.0,
+      "servingSizeUnit": "ml",
+      "householdServingFullText": "1 BOTTLE",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 5.07
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 1.69
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 8.11
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 64.0
+        }
+      ]
+    },
+    {
+      "fdcId": 2086998,
+      "description": "PREMIER WHITE BAKING BAR, PREMIER WHITE",
+      "dataType": "Branded",
+      "brandOwner": "Nestle USA Inc.",
+      "brandName": "TOLL HOUSE",
+      "gtinUpc": "028000222185",
+      "servingSize": 14.0,
+      "servingSizeUnit": "g",
+      "householdServingFullText": "1/2 ONZ",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 7.14
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 28.6
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 64.3
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 500
+        }
+      ]
+    },
+    {
+      "fdcId": 2600770,
+      "description": "PREMIER WHITE CREME CHIPS, PREMIER WHITE",
+      "dataType": "Branded",
+      "brandOwner": "The Hershey Company",
+      "brandName": "HERSHEY\u0027S",
+      "gtinUpc": "034000148394",
+      "servingSize": 15.0,
+      "servingSizeUnit": "GRM",
+      "householdServingFullText": "1 Tbsp",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 6.67
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 26.7
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 66.7
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 533
+        }
+      ]
+    },
+    {
+      "fdcId": 2127179,
+      "description": "HIGH PROTEIN SHAKE",
+      "dataType": "Branded",
+      "brandOwner": "Premier Nutrition Corporation",
+      "brandName": "PREMIER PROTEIN",
+      "gtinUpc": "643843715009",
+      "servingSize": 330.0,
+      "servingSizeUnit": "ml",
+      "householdServingFullText": "1 SHAKE",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 9.09
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 0.91
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 1.52
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 48.0
+        }
+      ]
+    },
+    {
+      "fdcId": 2582064,
+      "description": "MUNCHIES PROTEIN SHAKE",
+      "dataType": "Branded",
+      "brandOwner": "Alani Nutrition LLC",
+      "brandName": "ALANI NU",
+      "gtinUpc": "0810030510925",
+      "servingSize": 355.0,
+      "servingSizeUnit": "MLT",
+      "householdServingFullText": "12 fl oz (355ml)",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 5.63
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 0.99
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 2.82
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 39.0
+        }
+      ]
+    },
+    {
+      "fdcId": 585891,
+      "description": "NUTRITION PROTEIN SHAKE",
+      "dataType": "Branded",
+      "brandOwner": "Ripple Foods",
+      "gtinUpc": "855643006618",
+      "servingSize": 355.0,
+      "servingSizeUnit": "ml",
+      "householdServingFullText": "12 OZA",
+      "foodNutrients": [
+        {
+          "nutrientId": 1003,
+          "unitName": "G",
+          "value": 5.63
+        },
+        {
+          "nutrientId": 1004,
+          "unitName": "G",
+          "value": 2.25
+        },
+        {
+          "nutrientId": 1005,
+          "unitName": "G",
+          "value": 3.38
+        },
+        {
+          "nutrientId": 1008,
+          "unitName": "KCAL",
+          "value": 56.0
+        }
+      ]
+    }
+  ]
+}

@@ -114,6 +114,15 @@ select {
   color: var(--muted);
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .small {
   font-size: 0.875rem;
 }
@@ -379,6 +388,12 @@ select {
 
 .progress-primary .metric-value {
   font-size: 1.5rem;
+}
+
+.metric-value .muted {
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .metric-remaining {

@@ -47,3 +47,46 @@ Running log of choices made while building the POC. Format: decision, reason, al
 ### CI: single build job, deploy job only on `main` pushes
 
 - **Reason:** PRs run the same check + build (catches base-path build breaks) but never deploy. `concurrency: pages` on the deploy job prevents overlapping deploys without cancelling an in-progress one.
+
+## Phase 1
+
+### Selected day lives in the URL (`#/?date=YYYY-MM-DD`, `#/add?date=...`)
+
+- **Reason:** survives reload, needs no global state, and the Add screen knows which day to log to. Omitted when the day is today.
+
+### Entries snapshot `servingLabel` as well as name and macros
+
+- **Reason:** the Today list shows "1.5 × 3 oz" correctly even after the food is edited or deleted. Additive optional field on `LogEntry`.
+
+### Editing an entry's servings rescales its own snapshot
+
+- **Reason:** `newMacros = snapshot × newServings / oldServings`. Never re-reads the current food, so history is never rewritten.
+
+### Logging to a past/future day uses the current wall-clock time on that date
+
+- **Reason:** keeps chronological ordering sensible without asking for a time.
+
+### Delete entry/food via `window.confirm`
+
+- **Reason:** simplest accessible confirmation; works on iOS. Swipe-to-delete skipped to avoid a gesture dependency.
+- **Alternatives:** undo toast (nicer; revisit in Phase 5 polish).
+
+### Calorie mismatch warning offers "Use N kcal"
+
+- **Reason:** soft warning per spec (never blocks save), with a one-tap fix using 4P + 4C + 9F.
+
+### Default targets: 2000 kcal, 150 g protein; carbs/fat unset
+
+- **Reason:** placeholders the owner edits in Settings. Carbs/fat targets are optional; without one, only the consumed amount is shown.
+
+### Sample data loader is in a collapsed "Developer" section in Settings (always available)
+
+- **Reason:** the owner tests on the deployed site on an iPhone, so a dev-build-only button wouldn't be reachable. Uses fixed ids, so loading twice is a no-op. Sample meal ("Turkey sandwich") arrives with Phase 2. Gram weights for egg/banana/bread/cheese are approximate.
+
+### IDs: `crypto.randomUUID()` with a `getRandomValues` fallback
+
+- **Reason:** `randomUUID` requires a secure context; the fallback lets the app work over plain-HTTP LAN during development.
+
+### Add screen (Phase 1 version) lists all foods by recency with a "+1" one-tap log
+
+- **Reason:** satisfies quick-add now; Favorites/Recents sections and meal search come in Phase 3.
